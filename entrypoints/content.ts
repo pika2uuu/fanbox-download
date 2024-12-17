@@ -26,17 +26,20 @@ type Post = {
   hashtags: (string | null)[],
 }
 
-
-async function fetchDomFromUrl(url: string): Promise<Document | undefined> {
   try {
-    const response = await fetch(url);
-    const html = await response.text();
-    const parser = new DOMParser();
-    return parser.parseFromString(html, "text/html");
   } catch (error) {
-    console.error(`DOMの取得に失敗しました URL: ${url}`);
-    return undefined;
   }
+}
+
+async function fetchDomFromUrl(url: string): Promise<Document> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch DOM. URL: ${url}, Status: ${response.status}`);
+  }
+
+  const html = await response.text();
+  const parser = new DOMParser();
+  return parser.parseFromString(html, "text/html");
 }
 
 function isLastPage(doc: Document): boolean {
