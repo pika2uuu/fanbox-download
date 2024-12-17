@@ -64,15 +64,14 @@ function getPostUrls(doc: Document): string[] {
   return postUrls;
 }
 
-function getUserInfo(doc: Document): UserInfo | undefined {
+function getProfile(doc: Document): UserInfo {
   // 要素を取得し、存在するか確認
   const userIconElem =  doc.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserIcon__Icon"]');
   const userNameElem =  doc.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserNameText"]');
   const userDescriptionElem = doc.querySelector<HTMLElement>('[class*="TwoColumnLayout__MainColumn"] [class*="Description"]');
 
   if (!userIconElem || !userNameElem || !userDescriptionElem) {
-    console.error("ユーザー情報を取得しようとしましたが、 アイコン、ユーザー名、自己紹介文　のいずれかのDOMが存在しませんでした");
-    return undefined;
+    throw new Error("必須のDOM要素が見つかりませんでした");
   }
   // 要素から情報を取得
   const name = userIconElem.textContent;
@@ -80,14 +79,13 @@ function getUserInfo(doc: Document): UserInfo | undefined {
   const description = userDescriptionElem.textContent;
 
   if (!name || !description) {
-    console.error("ユーザー情報を取得しようとしましたが、 ユーザー名、自己紹介文　のいずれかのtextContentが保存できませんでした");
-    return undefined;
+    throw new Error("ユーザー情報を取得しようとしましたが、 ユーザー名、自己紹介文　のいずれかのtextContentが保存できませんでした");
   }
-
   return {name, icon, description};
 }
 
-function getPlans(doc: Document): Plan[] | undefined {
+// TODO 現在プランを停止してるときの対応 https://www.fanbox.cc/@lived3-9th
+function getPlans(doc: Document): Plan[] {
   const planListElems = doc.querySelectorAll('[class*="PlanItem__Wrapper"]')
   let plans: Plan[] = [];
 
@@ -99,8 +97,7 @@ function getPlans(doc: Document): Plan[] | undefined {
     const planMonthlyFeeElem = planElem.querySelector<HTMLDivElement>('[class*="PlanItem__FeePerMonth"] > div[class*="PlanItem__Fee"]');
 
     if ( !planImageElem || !planTitleElem || !planDescriptionElem || !planMonthlyFeeElem) {
-      console.error("プラン情報を取得しようとしましたが、画像、プラン名、説明文、月額料金のいずれかのDOMが見つかりませんでした");
-      return undefined;
+      throw new Error("プラン情報を取得しようとしましたが、画像、プラン名、説明文、月額料金のいずれかのDOMが見つかりませんでした");
     }
 
     // 要素から情報を取得
@@ -110,8 +107,7 @@ function getPlans(doc: Document): Plan[] | undefined {
     const monthlyFee = planMonthlyFeeElem.textContent;
 
     if (!title || !description || !monthlyFee) {
-      console.error("プラン情報を取得しようとしましたが、画像、プラン名、説明文、月額料金のいずれかのtextContentが見つかりませんでした");
-      return undefined;
+      throw new Error("プラン情報を取得しようとしましたが、画像、プラン名、説明文、月額料金のいずれかのtextContentが見つかりませんでした");
     }
     plans.push({title, image, description, monthlyFee})
   }
@@ -120,7 +116,7 @@ function getPlans(doc: Document): Plan[] | undefined {
 }
 
 // 指定したURLの投稿を取得
-function getPosts(doc: Document): Post | undefined {
+function getPosts(doc: Document): Post {
   const titleElem = doc.querySelector<HTMLHeadingElement>('[class*="PostTitle"]');
   const metadataElem =  doc.querySelector<HTMLDivElement>('[class*="PostHeadBotto"]');
   const thumbnailElem =  doc.querySelector<HTMLImageElement>('[class*="PostImage__Image"] > img');
@@ -128,8 +124,7 @@ function getPosts(doc: Document): Post | undefined {
   const hashtagElems = doc.querySelectorAll('[class*="Tag__Text"]');
 
   if (!titleElem || !metadataElem || !thumbnailElem || !contentElem) {
-    console.error("詳細ページ内で タイトル、投稿情報、画像、テキスト のいずれかが見つかりません");
-    return undefined;
+    throw new Error("詳細ページ内で タイトル、投稿情報、画像、テキスト のいずれかが見つかりません");
   }
 
   const title = titleElem.textContent;
@@ -145,8 +140,7 @@ function getPosts(doc: Document): Post | undefined {
   }
 
   if (!title || !metadata || !content) {
-    console.error("詳細ページのDOMで タイトル、投稿情報、テキスト のいずれかのtextContentが見つかりません");
-    return undefined;
+    throw new Error("詳細ページのDOMで タイトル、投稿情報、テキスト のいずれかのtextContentが見つかりません");
   }
   return {title, metadata, thumbnail, content, hashtags}
 }
