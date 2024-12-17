@@ -150,3 +150,20 @@ function getPosts(doc: Document): Post | undefined {
   }
   return {title, metadata, thumbnail, content, hashtags}
 }
+
+function getUserID(url: string): string {
+  const parsedUrl = new URL(url);
+  const paths = parsedUrl.pathname.split("/");
+  const atPath = paths.find(path => path.startsWith("@"));
+
+  // URLに含まれるユーザーIDは2パターン
+  let userID;
+  if (atPath != undefined) {
+    // XXX.fanbox.cc
+    userID = atPath
+  } else {
+    // fanbox.cc/@XXX
+    userID = parsedUrl.host.split(".")[0];
+  }
+  return userID;
+}
