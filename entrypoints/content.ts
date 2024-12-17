@@ -5,7 +5,7 @@ export default defineContentScript({
   },
 });
 
-type UserInfo = {
+type Profile = {
   name: string,
   icon: string,
   description: string,
@@ -67,7 +67,7 @@ function getPostUrls(doc: Document): string[] {
   return postUrls;
 }
 
-function getProfile(doc: Document): UserInfo {
+function getProfile(doc: Document): Profile {
   // 要素を取得し、存在するか確認
   const userIconElem =  doc.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserIcon__Icon"]');
   const userNameElem =  doc.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserNameText"]');
