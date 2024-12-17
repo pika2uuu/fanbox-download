@@ -27,6 +27,16 @@ type Post = {
 }
 // https://www.fanbox.cc/{userName}/posts の要素
 const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
+
+function isLastPage(): boolean {
+  const pageLinkElems = Array.from(document.querySelectorAll<HTMLAnchorElement>('[class*="Pagination__DesktopWrapper"] > [class*="Pagination__Wrapper"] > a '))
+  // 一覧が1ページしかないときページネーションの子要素にaタグがない
+  if (pageLinkElems.length == 0) {
+    return true
+  }
+  // 次ページリンクがあるとき <pixiv-icon>タグがある
+  return pageLinkElems[pageLinkElems.length - 1].children[0].tagName.toLowerCase() !== "pixiv-icon"
+}
 function getPostUrls(): string[] {
   const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
   let postUrls = [];
