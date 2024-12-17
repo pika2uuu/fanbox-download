@@ -17,6 +17,14 @@ type Plan = {
   description: string,
   monthlyFee: string,
 }
+
+type Post = {
+  title: string,
+  metadata: string,
+  thumbnail?: string,
+  content: string,
+  hashtags: (string | null)[],
+}
 // https://www.fanbox.cc/{userName}/posts の要素
 const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
 function getUserInfo(): UserInfo | undefined {
@@ -40,10 +48,6 @@ function getUserInfo(): UserInfo | undefined {
   return {name, icon, description};
 }
 
-const postTitleElem = document.querySelector<HTMLHeadingElement>('[class*="PostTitle"]');
-const postInfoElem =  document.querySelector<HTMLDivElement>('[class*="PostHeadBotto"]');
-const postImageElem =  document.querySelector<HTMLImageElement>('[class*="PostImage__Image"] > img');
-const postContentElem =  document.querySelector<HTMLDivElement>('[class*="Body__PostBodyText"]');
 function getPlans(): Plan[] | undefined {
   const planListElems = document.querySelectorAll('[class*="PlanItem__Wrapper"]')
   let plans: Plan[] = [];
@@ -77,3 +81,34 @@ function getPlans(): Plan[] | undefined {
 }
 
 const pageLinks = document.querySelectorAll<HTMLAnchorElement>('[class*="Pagination__DesktopWrapper"] > [class*="Pagination__Wrapper"] > a ')
+// 指定したURLの投稿を取得
+function getPosts(url: string): Post | undefined {
+  const titleElem = document.querySelector<HTMLHeadingElement>('[class*="PostTitle"]');
+  const metadataElem =  document.querySelector<HTMLDivElement>('[class*="PostHeadBotto"]');
+  const thumbnailElem =  document.querySelector<HTMLImageElement>('[class*="PostImage__Image"] > img');
+  const contentElem =  document.querySelector<HTMLDivElement>('[class*="Body__PostBodyText"]');
+  const hashtagElems = document.querySelectorAll('[class*="Tag__Text"]');
+
+  if (!titleElem || !metadataElem || !thumbnailElem || !contentElem) {
+    console.error("詳細ページ内で タイトル、投稿情報、画像、テキスト のいずれかが見つかりません");
+    return undefined;
+  }
+
+  const title = titleElem.textContent;
+  const metadata = metadataElem.textContent;
+  const thumbnail = thumbnailElem.src;
+  const content = contentElem.textContent;
+
+  const hashtags = [];
+  if (hashtagElems.length >= 0) {
+    for (const hashtagElem of hashtagElems) {
+      hashtags.push(hashtagElem.textContent);
+    }
+  }
+
+  if (!title || !metadata || !content) {
+    console.error("詳細ページのDOMで タイトル、投稿情報、テキスト のいずれかのtextContentが見つかりません");
+    return undefined;
+  }
+  return {title, metadata, thumbnail, content, hashtags}
+}
