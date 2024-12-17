@@ -167,3 +167,14 @@ function getUserID(url: string): string {
   }
   return userID;
 }
+
+function generateUserUrls (userID: string): { profileUrl: string, postsUrl: string, plansUrl: string, shopUrl: string} {
+  const baseUrl = `https://www.fanbox.cc/@${userID}`;
+
+  return {
+    profileUrl: `${baseUrl}`,
+    postsUrl: `${baseUrl}/posts`,
+    plansUrl: `${baseUrl}/plans`,
+    shopUrl: `${baseUrl}/shop`,
+  }
+}
