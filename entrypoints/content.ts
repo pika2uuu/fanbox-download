@@ -1,5 +1,5 @@
 export default defineContentScript({
-  matches: ['*://*.fanbox.css/*'],
+  matches: ['*://*.fanbox.cc/*'],
   main() {
 
   },
@@ -25,8 +25,6 @@ type Post = {
   content: string,
   hashtags: (string | null)[],
 }
-// https://www.fanbox.cc/{userName}/posts の要素
-const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
 
 function isLastPage(): boolean {
   const pageLinkElems = Array.from(document.querySelectorAll<HTMLAnchorElement>('[class*="Pagination__DesktopWrapper"] > [class*="Pagination__Wrapper"] > a '))
@@ -37,6 +35,7 @@ function isLastPage(): boolean {
   // 次ページリンクがあるとき <pixiv-icon>タグがある
   return pageLinkElems[pageLinkElems.length - 1].children[0].tagName.toLowerCase() !== "pixiv-icon"
 }
+
 function getPostUrls(): string[] {
   const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
   let postUrls = [];
@@ -51,7 +50,9 @@ function getPostUrls(): string[] {
   }
   return postUrls;
 }
+
 function getUserInfo(): UserInfo | undefined {
+  // 要素を取得し、存在するか確認
   const userIconElem =  document.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserIcon__Icon"]');
   const userNameElem =  document.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserNameText"]');
   const userDescriptionElem = document.querySelector<HTMLElement>('[class*="TwoColumnLayout__MainColumn"] [class*="Description"]');
@@ -60,6 +61,7 @@ function getUserInfo(): UserInfo | undefined {
     console.error("ユーザー情報を取得しようとしましたが、 アイコン、ユーザー名、自己紹介文　のいずれかのDOMが存在しませんでした");
     return undefined;
   }
+  // 要素から情報を取得
   const name = userIconElem.textContent;
   const icon = userIconElem.style.backgroundImage;
   const description = userDescriptionElem.textContent;
@@ -104,7 +106,6 @@ function getPlans(): Plan[] | undefined {
   return plans
 }
 
-const pageLinks = document.querySelectorAll<HTMLAnchorElement>('[class*="Pagination__DesktopWrapper"] > [class*="Pagination__Wrapper"] > a ')
 // 指定したURLの投稿を取得
 function getPosts(url: string): Post | undefined {
   const titleElem = document.querySelector<HTMLHeadingElement>('[class*="PostTitle"]');
