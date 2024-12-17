@@ -27,6 +27,20 @@ type Post = {
 }
 // https://www.fanbox.cc/{userName}/posts の要素
 const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
+function getPostUrls(): string[] {
+  const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
+  let postUrls = [];
+  for ( let postElem of postElems) {
+    const url = postElem.href;
+
+    if (url.endsWith("/plans")) {
+      console.log("プランに加入していないためスキップ");
+      break;
+    }
+    postUrls.push(postElem.href);
+  }
+  return postUrls;
+}
 function getUserInfo(): UserInfo | undefined {
   const userIconElem =  document.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserIcon__Icon"]');
   const userNameElem =  document.querySelector<HTMLElement>('[class*="CreatorHeader__IsNotMobile"] [class*="UserNameText"]');
