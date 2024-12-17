@@ -44,10 +44,10 @@ const postTitleElem = document.querySelector<HTMLHeadingElement>('[class*="PostT
 const postInfoElem =  document.querySelector<HTMLDivElement>('[class*="PostHeadBotto"]');
 const postImageElem =  document.querySelector<HTMLImageElement>('[class*="PostImage__Image"] > img');
 const postContentElem =  document.querySelector<HTMLDivElement>('[class*="Body__PostBodyText"]');
-function getPlanInfo(): Plan[] | undefined {
+function getPlans(): Plan[] | undefined {
   const planListElems = document.querySelectorAll('[class*="PlanItem__Wrapper"]')
-  let planInfo: Plan[] = [];
-  
+  let plans: Plan[] = [];
+
   for ( const planElem of planListElems) {
     // 要素を取得
     const planImageElem = planElem.querySelector<HTMLDivElement>('[class*="PlanItem__CoverImage"]');
@@ -70,10 +70,10 @@ function getPlanInfo(): Plan[] | undefined {
       console.error("プラン情報を取得しようとしましたが、画像、プラン名、説明文、月額料金のいずれかのtextContentが見つかりませんでした");
       return undefined;
     }
-    planInfo.push({title, image, description, monthlyFee})
+    plans.push({title, image, description, monthlyFee})
   }
 
-  return planInfo
+  return plans
 }
 
 const pageLinks = document.querySelectorAll<HTMLAnchorElement>('[class*="Pagination__DesktopWrapper"] > [class*="Pagination__Wrapper"] > a ')
