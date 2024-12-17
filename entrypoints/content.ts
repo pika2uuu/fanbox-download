@@ -10,12 +10,13 @@ type UserInfo = {
   icon: string,
   description: string,
 }
-// 共通
-// https://www.fanbox.cc/{userName} の要素
-const planImageElems = document.querySelectorAll('[class*="PlanItem__CoverImage"]');
-const planTitleElems = document.querySelectorAll('[class*="PlanItem__Title"]');
-const planDescriptionElems = document.querySelectorAll('[class*="Description__Text"]');
-const planMonthlyFeeElems = document.querySelectorAll<HTMLDivElement>('[class*="PlanItem__FeePerMonth"] > div[class*="PlanItem__Fee"]');
+
+type Plan = {
+  title: string,
+  image: string,
+  description: string,
+  monthlyFee: string,
+}
 // https://www.fanbox.cc/{userName}/posts の要素
 const postElems = document.querySelectorAll<HTMLAnchorElement>('[class*="CardPostItem__Wrapper"]');
 function getUserInfo(): UserInfo | undefined {
@@ -43,5 +44,36 @@ const postTitleElem = document.querySelector<HTMLHeadingElement>('[class*="PostT
 const postInfoElem =  document.querySelector<HTMLDivElement>('[class*="PostHeadBotto"]');
 const postImageElem =  document.querySelector<HTMLImageElement>('[class*="PostImage__Image"] > img');
 const postContentElem =  document.querySelector<HTMLDivElement>('[class*="Body__PostBodyText"]');
+function getPlanInfo(): Plan[] | undefined {
+  const planListElems = document.querySelectorAll('[class*="PlanItem__Wrapper"]')
+  let planInfo: Plan[] = [];
+  
+  for ( const planElem of planListElems) {
+    // 要素を取得
+    const planImageElem = planElem.querySelector<HTMLDivElement>('[class*="PlanItem__CoverImage"]');
+    const planTitleElem = document.querySelector<HTMLDivElement>('[class*="PlanItem__Title"]');
+    const planDescriptionElem = document.querySelector<HTMLDivElement>('[class*="Description__Text"]');
+    const planMonthlyFeeElem = document.querySelector<HTMLDivElement>('[class*="PlanItem__FeePerMonth"] > div[class*="PlanItem__Fee"]');
+
+    if ( !planImageElem || !planTitleElem || !planDescriptionElem || !planMonthlyFeeElem) {
+      console.error("プラン情報を取得しようとしましたが、画像、プラン名、説明文、月額料金のいずれかのDOMが見つかりませんでした");
+      return undefined;
+    }
+
+    // 要素から情報を取得
+    const image = planImageElem.style.backgroundImage;
+    const title = planTitleElem.textContent;
+    const description = planDescriptionElem.textContent;
+    const monthlyFee = planMonthlyFeeElem.textContent;
+
+    if (!title || !description || !monthlyFee) {
+      console.error("プラン情報を取得しようとしましたが、画像、プラン名、説明文、月額料金のいずれかのtextContentが見つかりませんでした");
+      return undefined;
+    }
+    planInfo.push({title, image, description, monthlyFee})
+  }
+
+  return planInfo
+}
 
 const pageLinks = document.querySelectorAll<HTMLAnchorElement>('[class*="Pagination__DesktopWrapper"] > [class*="Pagination__Wrapper"] > a ')
