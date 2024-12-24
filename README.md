@@ -1,3 +1,21 @@
-# WXT + React
+# Fanbox Downloader Neko
 
-This template should help get you started developing with React in WXT.
+## TODO
+- [ ] コンテントスクリプトはUIの表示用にして、ダウンロード処理は別のファイルにする
+- 
+
+## メモ
+* ユーザーIDがあれば投稿一覧とプロフィールとプラン一覧のAPIは取得できる
+* 投稿一覧はページネーションのapiを投げると、各ページのAPIが返ってくるので、さらにそのAPIを投げると1ページに表示される最大10個の投稿が返ってくる
+* ログインしてなかったり支援金額が足りない状態だと bodyがnullで、タイトルは投稿日時など見える情報だけが入ったJSONが返ってくる。
+* 投稿に一意のidを割り当ててAPIで取得してるが、ページのURLはそのID+ユーザIDをつけている。投稿にはユーザー情報も付け加えてるから使える。
+## 未実装
+* タグの保存
+* JSON形式にするつもりで実装する。そうしたら各種類の投稿でdlListに入れてるが、データは連想配列に保管して、テキストとして保存するときは、プレゼンターの関数として別に実装する
+
+
+## 参考サイト
+
+fanboxをダウンロードするスクリプト
+
+https://github.com/darekasan/fanbox-downloader/blob/master/fanbox-downloader.js
