@@ -11,6 +11,8 @@ export default defineConfig({
     manifest: {
       host_permissions: ["https://www.fanbox.cc/"],
       permissions: [
+        "storage",
+        "downloads",
         "declarativeNetRequest",
         "declarativeNetRequestWithHostAccess",
       ],
