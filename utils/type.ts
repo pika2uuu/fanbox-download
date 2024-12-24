@@ -1,3 +1,14 @@
+export type Url = {
+  url: string;
+}
+export type Download = {
+  dirname: string;
+  filename: string;
+  url?: string;
+  text?: string;
+}
+export type DlList = Download[];
+
 export type User = {
   userId: string;
   name: string;
@@ -6,18 +17,33 @@ export type User = {
 
 export type ProfileItem = {
   id: string;
-  type: "image";
+  type: string;
+  imageUrl?: string;
+  serviceProvider?: string;
+  videoId?: string;
+}
+
+export type ImageProfileItem = {
+  id: string;
+  type: string;
   imageUrl: string;
-  thumbnailUrl: string;
 };
 
-export type CreatorData = {
+export type VideoProfileItem = {
+  id: string;
+  type: string;
+  serviceProvider: string;
+  videoId: string;
+}
+
+export type Profile = {
   user: User;
   creatorId: string;
   description: string;
   profileLinks: string[];
-  profileItems: ProfileItem[];
+  profileItems: (ImageProfileItem | VideoProfileItem)[];
   coverImageUrl: string;
+  hasBoothShop: boolean;
 };
 
 export type Plan = {
@@ -25,7 +51,6 @@ export type Plan = {
   fee: number;
   description: string;
   coverImageUrl: string;
-  user: User;
 };
 
 export type PageUrl = {
@@ -34,8 +59,15 @@ export type PageUrl = {
 
 type Image = {
   id: string;
+  extension: string;
   originalUrl: string;
 };
+
+type ImageMap = {
+  id: string;
+  extension: string;
+  originalUrl: string;
+}
 
 export type Block =
   | { type: "p"; text: string }
@@ -55,8 +87,7 @@ type Video = {
   videoId: string;
 }
 
-
-type UrlEmbed = {
+type EmbedUrl = {
   id: string; // 埋め込みID
   type: string; // 埋め込みタイプ
   html: string; // 埋め込みHTML
@@ -64,82 +95,41 @@ type UrlEmbed = {
 
 export type ArticleBody = {
   blocks: Block[];
-  imageMap: Record<string, Image>;
+  imageMap: Record<string, ImageMap>;
   fileMap: Record<string, File>;
   embedMap: Record<string, unknown>;
-  urlEmbedMap: Record<string, UrlEmbed>;
+  urlEmbedMap: Record<string, EmbedUrl>;
 }
 
-type ImageBody = {
+export type ImageBody = {
   text: string;
   images: Image[];
 }
 
-type TextBody = {
+export type TextBody = {
   text: string;
 }
 
-type FileBody = {
+export type FileBody = {
   text: string;
   files: File[];
 }
 
-type VideoBody = {
+export type VideoBody = {
   text: string;
-  video: Video[];
+  video: Video;
 }
 
-type Body = {
-  text: string;
-  blocks: Block[];
-  imageMap: Record<string, Image>;
-  files?: File[];
-  fileMap: Record<string, File>;
-  embedMap: Record<string, unknown>;
-  urlEmbedMap: Record<string, UrlEmbed>;
-};
-
-type BasePost = {
+export type Post = {
+  body: ArticleBody | ImageBody | FileBody | TextBody | VideoBody | null ; // エラーもしくは課金額が足らないときはbodyがnullになる
   id: string;
+  type: string;
   title: string;
-  publishedDatetime: string;
+  feeRequired: number;
+  coverImageUrl?: string;
+  imageForShare: string;
   tags: string[];
   isRestricted: boolean;
-  type: string;
-  coverImageUrl: string | null;
-  excerpt: string;
-  imageForShare: string;
-}
-
-export type ImagePost = BasePost & {
-  body: ImageBody;
-}
-
-export type ArticlePost = BasePost & {
-  body: ArticleBody;
-}
-
-export type FilePost = BasePost & {
-  body: FileBody;
-}
-
-export type VideoPost = BasePost & {
-  body: VideoBody;
-}
-
-export type TextPost = BasePost & {
-  body: TextBody;
-}
-
-export interface Post {
-  id: string;
-  title: string;
   publishedDatetime: string;
-  tags: string[];
-  isRestricted: boolean;
-  type: string;
-  coverImageUrl: string | null;
-  body: Body | null;
-  excerpt: string;
-  imageForShare: string;
+  creatorId: string;
 }
