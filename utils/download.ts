@@ -2,13 +2,13 @@
 import {Profile, Plan, Post, ArticleBody, DlList, ImageBody, VideoBody, ImageProfileItem, VideoProfileItem} from "@/utils/type.ts";
 import { sendMessage1 } from '../utils/messaging'
 
-async function download() {
-    let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
-    let ignoreFreePlan = true;
+export async function download() {
+    // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
+    // let ignoreFreePlan = true;
     const dlList: DlList = [];
-    // const url = ""
-    // const url = ""
     const url = ""
+    // const url = ""
+    // const url = ""
     // const url = ""
     const { profileAPIUrl, allPagesAPIUrl, plansAPIUrl, shopAPIUrl } = generateUserUrls(url);
 
@@ -22,7 +22,6 @@ async function download() {
     // 現在は支援金額をみたしている投稿だけ表示している。
     for (const postUrl of postUrls) {
         const postJson = await fetchData(postUrl);
-        console.log(postJson);
         const post = extractPostData(postJson); // fetchでJSON取得直後に不要なキーを削除したPost型に変換
         // 支援金額た足りない場合、 isRestricted が true
         if (post.isRestricted) {

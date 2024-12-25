@@ -3,6 +3,7 @@ import { DlList } from './type'
 
 interface MessageProtocol {
   ping: (dlList: DlList) => string;
+  uploadFile: (dl: Download) => string;
   sleep: number;
 }
 

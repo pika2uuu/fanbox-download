@@ -1,12 +1,13 @@
-import { onMessage1 } from '../utils/messaging';
+import {onMessage1, sendMessage1} from '../utils/messaging';
 import { Download} from "@/utils/type.ts";
 
-export default defineBackground(() => {
+export default defineBackground( async () => {
     onMessage1('ping', async (dlList) =>  {
+        const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         for (const item of dlList.data) {
-            // await downloadFile(item)
+            await sendMessage1('uploadFile', item, tab.id)
         }
-        return 'ダウンロード完了'
+        return 'finished'
     });
 });
 
