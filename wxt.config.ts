@@ -24,6 +24,9 @@ export default defineConfig({
             path: 'rules/fanbox.json',
           }
         ]
-      }
+      },
+        // externally_connectable: {
+        //   matches: ["'*://*.fanbox.cc/*'"]
+        // }
     },
 });
