@@ -17,7 +17,7 @@ export type DownloadItem = {
 }
 
 export type DlInfo = {
-    path: string,
+    targetFileName: string,
     index: number,
     maxNum: number,
 }

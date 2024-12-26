@@ -41,7 +41,7 @@ export default function ProgressArea() {
         // メッセージリスナーを登録
         onMessage1('uploadFile', (msg) => {
             console.log("backgroundからメッセージを受け取った");
-            const nextDownload: DlInfo = { path: `${msg.data.dl.dirname}/${msg.data.dl.filename}`, index: msg.data.index, maxNum: msg.data.maxNum };
+            const nextDownload: DlInfo = { targetFileName: `${msg.data.dl.dirname}/${msg.data.dl.filename}`, index: msg.data.index, maxNum: msg.data.maxNum };
             setIndexPair({ index: nextDownload.index, maxNum: nextDownload.maxNum });
             console.log(indexPair)
 
