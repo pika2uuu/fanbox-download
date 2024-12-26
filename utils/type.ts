@@ -22,6 +22,18 @@ export type DlInfo = {
     maxNum: number,
 }
 
+export type DownloadStatus = {
+    id: number,
+    status: string,
+}
+
+export type ActiveDownload = {
+    targetFilename: string;
+    status: string;
+};
+
+export type ActiveDownloads = Record<number, ActiveDownload>;
+
 export type User = {
     userId: string;
     name: string;

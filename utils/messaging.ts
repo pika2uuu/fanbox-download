@@ -4,7 +4,8 @@ import { DownloadItem} from './type'
 interface MessageProtocol {
   ping: (dlList: DlList) => string;
   uploadFile: (dl: DownloadItem) => string;
-  uploadFinished: (finished: boolean) => void
+  uploadFinished: (finished: boolean) => void;
+  downloadStatusUpdated: (dlStatus: DownloadStatus) => void;
   sleep: number;
 }
 
