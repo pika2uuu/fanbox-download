@@ -15,51 +15,36 @@ export default defineBackground( async () => {
     });
 });
 
-async function downloadTextFile(text: string, filePath: string): Promise<void> {
-    const blob = new Blob([text], { type: 'text/plain' });
-    const reader = new FileReader();
 
-    reader.onloadend = () => {
-        const url = reader.result as string;
-        chrome.downloads.download({
-            url: url,
-            filename: filePath,
-            saveAs: false,
-            conflictAction: 'uniquify'
-        }, (downloadId) => {
-            if (chrome.runtime.lastError) {
-                console.error('Error downloading text file:', chrome.runtime.lastError);
-            } else {
-                console.log('Text file download started:', downloadId);
-            }
-        });
-    };
 
-    reader.readAsDataURL(blob); // FileReader でBlobをDataURLに変換
-}
+async function downloadFile(dl: Download): Promise<void> {
+    if (!dl.url && !dl.text) {
+        console.error("保存ファイルのURLか投稿内容のテキストが存在しません");
+        return;
+    }
+    const downloadUrl = dl.url ?? await createDataUrl(dl.text!);
+    const path = `${dl.dirname}/${dl.filename}`;
 
-async function downloadImageFile(url: string, filePath: string): Promise<void> {
     chrome.downloads.download({
-        url: url,
-        filename: filePath,
+        url: downloadUrl,
+        filename: path,
         saveAs: false,
-        conflictAction: 'uniquify',
+        conflictAction: 'uniquify'
     }, (downloadId) => {
         if (chrome.runtime.lastError) {
-            console.error(`画像ファイルのダウンロード中にエラーが発生 file: [${filePath}] ${downloadId}]. Error: ${chrome.runtime.lastError}`);
+            console.error(`ファイルのダウンロードに失敗: ${chrome.runtime.lastError.message}`);
         } else {
-            console.log(`画像ファイルのダウンロード開始 ${downloadId}`);
+            console.log('ファイルのダウンロードを開始', downloadId);
         }
     });
 }
 
-async function downloadFile(dl: Download): Promise<void> {
-    const { dirname, filename, url, text } = dl;
-    const filePath = `downloads/${dirname.replaceAll("/", "-")}/${filename}`; // 日付の区切りで / を使ってる場合 - に変換
-
-    if (url) {
-        await downloadImageFile(url, filePath);
-    } else if (text) {
-        await downloadTextFile(text, filePath)
-    }
+async function createDataUrl(text: string): Promise<string> {
+    const blob = new Blob([text], { type: 'text/plain' });
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("テキストデータからBlobへの変換でエラーが発生"));
+        reader.readAsDataURL(blob);
+    })
 }
