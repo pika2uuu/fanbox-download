@@ -23,7 +23,7 @@ async function downloadFile(dl: Download): Promise<void> {
         return;
     }
     const downloadUrl = dl.url ?? await createDataUrl(dl.text!);
-    const path = `${dl.dirname}/${dl.filename}`;
+    const path = `downloads/${dl.dirname.replaceAll("/", "-")}/${dl.filename}`;
 
     chrome.downloads.download({
         url: downloadUrl,
