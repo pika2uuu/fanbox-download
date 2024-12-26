@@ -1,6 +1,6 @@
 // import {logger} from "@/utils/logger.ts";
 import {Profile, Plan, Post, ArticleBody, DlList, ImageBody, VideoBody, ImageProfileItem, VideoProfileItem} from "@/utils/type.ts";
-import { sendMessage1 } from '../utils/messaging'
+import { sendMessage } from '../utils/messaging'
 
 export async function download() {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
@@ -41,7 +41,7 @@ export async function download() {
 
     console.log("========");
     console.log(dlList);
-    const res = await sendMessage1('ping', dlList).catch(console.error);
+    const res = await sendMessage('downloadStart', dlList).catch(console.error);
     console.log(res);
     console.log("========")
 }

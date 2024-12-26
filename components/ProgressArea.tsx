@@ -1,5 +1,5 @@
 import {Progress, ScrollArea} from "@mantine/core";
-import {onMessage1} from "@/utils/messaging";
+import {onMessage} from "@/utils/messaging";
 import {useEffect} from "react";
 import {DlInfo} from "../utils/type"
 import DownloadItem from "./DownloadItem";
@@ -38,14 +38,14 @@ export default function ProgressArea() {
 
     useEffect(() => {
         // メッセージリスナーを登録
-        onMessage1('uploadFile', (msg) => {
+        onMessage('uploadFile', (msg) => {
             console.log("backgroundからメッセージを受け取った");
             const nextDownload: DlInfo = { targetFileName: `${msg.data.dl.dirname}/${msg.data.dl.filename}`, index: msg.data.index, maxNum: msg.data.maxNum };
             setIndexPair({ index: nextDownload.index, maxNum: nextDownload.maxNum });
             setDownloads((prev) => [...prev, nextDownload]);
         });
 
-        onMessage1('uploadFinished', (msg) => {
+        onMessage('uploadFinished', (msg) => {
             console.log('ダウンロードが終わり');
             setFinished((prev) => !prev)
         })
