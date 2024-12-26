@@ -38,14 +38,14 @@ export default function ProgressArea() {
 
     useEffect(() => {
         // メッセージリスナーを登録
-        onMessage('uploadFile', (msg) => {
+        onMessage('downloadStarted', (msg) => {
             console.log("backgroundからメッセージを受け取った");
             const nextDownload: DlInfo = { targetFileName: `${msg.data.dl.dirname}/${msg.data.dl.filename}`, index: msg.data.index, maxNum: msg.data.maxNum };
             setIndexPair({ index: nextDownload.index, maxNum: nextDownload.maxNum });
             setDownloads((prev) => [...prev, nextDownload]);
         });
 
-        onMessage('uploadFinished', (msg) => {
+        onMessage('downloadFinished', (msg) => {
             console.log('ダウンロードが終わり');
             setFinished((prev) => !prev)
         })

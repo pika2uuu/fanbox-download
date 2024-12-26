@@ -3,18 +3,18 @@ import {onMessage, sendMessage} from '../utils/messaging';
 export default defineBackground( async () => {
     const activeDownloads: ActiveDownloads = {};
 
-    onMessage('downloadStart', async (dlList) =>  {
+    onMessage('clickStart', async (dlList) =>  {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         const maxNum = dlList.data.length;
         for (const [index, dl] of dlList.data.entries()) {
             const downloadId = await downloadStart(dl);
             console.log("ダウンロード開始")
             if (downloadId !== -1) {
-                await sendMessage('uploadFile', {dl, index, maxNum }, tab.id)
+                await sendMessage('downloadStarted', {dl, index, maxNum }, tab.id)
             }
         }
         const finished = true
-        await sendMessage('uploadFinished', finished, tab.id)
+        await sendMessage('downloadFinished', finished, tab.id)
         return 'finished'
     });
 

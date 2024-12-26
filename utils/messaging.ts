@@ -2,9 +2,9 @@ import { defineExtensionMessaging } from '@webext-core/messaging';
 import { DownloadItem} from './type'
 
 interface MessageProtocol {
-  downloadStart: (dlList: DlList) => string;
-  uploadFile: (dl: DownloadItem) => string;
-  uploadFinished: (finished: boolean) => void;
+  clickStart: (dlList: DlList) => string;
+  downloadStarted: (dl: DownloadItem) => string;
+  downloadFinished: (finished: boolean) => void;
   downloadStatusUpdated: (dlStatus: DownloadStatus) => void;
   sleep: number;
 }
