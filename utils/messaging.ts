@@ -1,9 +1,10 @@
 import { defineExtensionMessaging } from '@webext-core/messaging';
-import { DlList } from './type'
+import { DownloadItem} from './type'
 
 interface MessageProtocol {
   ping: (dlList: DlList) => string;
-  uploadFile: (dl: Download) => string;
+  uploadFile: (dl: DownloadItem) => string;
+  uploadFinished: (finished: boolean) => void
   sleep: number;
 }
 

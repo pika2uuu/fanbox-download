@@ -7,7 +7,20 @@ export type Download = {
     url?: string;
     text?: string;
 }
+
 export type DlList = Download[];
+
+export type DownloadItem = {
+    dl: Download;
+    index: number;
+    maxNum: number;
+}
+
+export type DlInfo = {
+    path: string,
+    index: number,
+    maxNum: number,
+}
 
 export type User = {
     userId: string;
