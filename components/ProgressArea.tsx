@@ -9,28 +9,31 @@ type IndexPair = {
     maxNum: number;
 }
 
+type Progress = {
+    percent: number;
+    label: string;
+}
+
 export default function ProgressArea() {
     const [downloads, setDownloads] = useState<DlInfo[]>([]);
     const [finished, setFinished] = useState<boolean>(false);
     const [indexPair, setIndexPair] = useState<IndexPair>({index: 0, maxNum: 0})
-    const [percent, setPercent] = useState<number>(0);
+    const [progress, setProgress] = useState<Progress>({ percent: 0, label: "0/0"});
 
     useEffect(() => {
-        let result;
-        console.log
+        let percent;
+        let label
         if (indexPair.index == 0) {
-            result = 0
-            console.log(result, 'パーセント')
-
+            percent = 0
+            label = '0/0'
         } else if (finished) {
-            result = 100
-            console.log(result, 'パーセント')
-
+            percent = 100
+            label = `${indexPair.maxNum}/${indexPair.maxNum}`
         } else {
-            result = indexPair.index / indexPair.maxNum * 100
-            console.log(result, 'パーセント')
+            percent = 100
+            label = `${indexPair.maxNum}/${indexPair.maxNum}`
         }
-        setPercent(result);
+        setProgress({percent, label});
         console.log("indexPair更新")
     }, [indexPair, finished])
 
@@ -54,15 +57,14 @@ export default function ProgressArea() {
     return (
         <>
             <Progress.Root size="20">
-                <Progress.Section value={percent} color="green">
-                    <Progress.Label>(`{progress(indexPair)}`)</Progress.Label>
+                <Progress.Section value={progress.percent} color="green">
+                    <Progress.Label>(`{progress.label}`)</Progress.Label>
                 </Progress.Section>
             </Progress.Root>
             {/*<ProgressStatus />*/}
             <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
                 {/*新しいのを上に表示したいので逆順にする。*/}
                 {downloads.slice().reverse().map((dlInfo, i) => {
-                    console.log(percent)
                     console.log(dlInfo);
                     if (finished) {
                         return (
@@ -85,12 +87,3 @@ export default function ProgressArea() {
     )
 }
 
-function progress(indexPair: IndexPair) {
-    let result;
-    if (indexPair.index == 0) {
-        result = "(0/0)"
-    } else {
-        result = `${indexPair.index}/${indexPair.maxNum}`
-    }
-    return result;
-}
