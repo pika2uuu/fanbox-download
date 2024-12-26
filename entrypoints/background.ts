@@ -4,9 +4,13 @@ import { Download} from "@/utils/type.ts";
 export default defineBackground( async () => {
     onMessage1('ping', async (dlList) =>  {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        for (const item of dlList.data) {
-            await sendMessage1('uploadFile', item, tab.id)
+        const maxNum = dlList.data.length;
+        for (const [index, dl] of dlList.data.entries()) {
+            await sendMessage1('uploadFile', {dl, index, maxNum }, tab.id)
         }
+
+        const finished = true
+        await sendMessage1('uploadFinished', finished, tab.id)
         return 'finished'
     });
 });
