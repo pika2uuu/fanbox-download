@@ -61,19 +61,20 @@ export default function ProgressArea() {
             <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
                 {/*新しいのを上に表示したいので逆順にする。*/}
                 {downloads.slice().reverse().map((dlInfo, i) => {
+                    const targetFilename = dlInfo.targetFileName;
                     if (finished) {
                         return (
-                            <DownloadItem key={i} finished={true} path={dlInfo.path} index={dlInfo.index} maxNum={dlInfo.maxNum} />
+                            <DownloadItem key={i} finished={true} targetFilename={targetFilename} />
                         );
                     } else if (i === 0) {
                         // i が 0 の場合
                         return (
-                            <DownloadItem key={i} finished={false} path={dlInfo.path} index={dlInfo.index} maxNum={dlInfo.maxNum} />
+                            <DownloadItem key={i} finished={false} targetFilename={targetFilename}  />
                         );
                     } else {
                         // その他の条件
                         return (
-                            <DownloadItem key={i} finished={true} path={dlInfo.path} index={dlInfo.index} maxNum={dlInfo.maxNum} />
+                            <DownloadItem key={i} finished={true} targetFilename={targetFilename}  />
                         );
                     }
                 })}
