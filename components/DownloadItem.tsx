@@ -3,12 +3,10 @@ import { IconCircleCheck, IconLoader } from "@tabler/icons-react";
 
 type DownloadItemProps = {
     finished: boolean;
-    path: string;
-    index: number;
-    maxNum: number;
+    targetFilename: string;
 };
 
-export default function DownloadItem({ finished, path, index, maxNum }: DownloadItemProps) {
+export default function DownloadItem({ finished, targetFilename}: DownloadItemProps) {
     return (
         <Flex align="center">
             {finished ? (
@@ -16,14 +14,14 @@ export default function DownloadItem({ finished, path, index, maxNum }: Download
                     <Text style={{ verticalAlign: "bottom" }}>
                         <IconCircleCheck stroke={2} size="1em" color="green" />
                     </Text>
-                    <Text c="green">{path}</Text>
+                    <Text c="green">{targetFilename}</Text>
                 </>
             ) : (
                 <>
                     <Text style={{ verticalAlign: "bottom" }}>
                         <IconLoader className="loading" size="1em" />
                     </Text>
-                    <Text>{path}</Text>
+                    <Text>{targetFilename}</Text>
                 </>
             )}
         </Flex>
