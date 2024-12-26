@@ -3,6 +3,35 @@ import {onMessage, sendMessage} from '../utils/messaging';
 export default defineBackground( async () => {
     const activeDownloads: ActiveDownloads = {};
 
+    onMessage('downloadStart', async (dlList) =>  {
+        const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+        const maxNum = dlList.data.length;
+        for (const [index, dl] of dlList.data.entries()) {
+            const downloadId = await downloadStart(dl);
+            console.log("ダウンロード開始")
+            if (downloadId !== -1) {
+                await sendMessage('uploadFile', {dl, index, maxNum }, tab.id)
+            }
+        }
+        const finished = true
+        await sendMessage('uploadFinished', finished, tab.id)
+        return 'finished'
+    });
+
+    chrome.downloads.onChanged.addListener(delta => {
+        const { id, state } = delta;
+
+        if (activeDownloads[id]) {
+            if (state?.current == "complete") {
+                activeDownloads[id].status = "complete";
+            } else if (state?.current == "interrupted") {
+                activeDownloads[id].status = "interrupted";
+            }
+        }
+        // state は必須ではないので、tateがない場合は上の条件分岐で再代入されないので同じ状態が送られるだけ
+        sendMessage("downloadStatusUpdated", { id, status: activeDownloads[id].status });
+    })
+
     async function downloadStart(dl: Download): Promise<number> {
         const { dirname, filename, url, text } = dl;
         const targetFilename = `downloads/${dirname.replaceAll("/", "-")}/${filename}`;
@@ -27,37 +56,6 @@ export default defineBackground( async () => {
         });
     }
 
-    onMessage('downloadStart', async (dlList) =>  {
-        const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        const maxNum = dlList.data.length;
-        for (const [index, dl] of dlList.data.entries()) {
-            const downloadId = await downloadStart(dl);
-            console.log("ダウンロード開始")
-            if (downloadId !== -1) {
-                await sendMessage('uploadFile', {dl, index, maxNum }, tab.id)
-            }
-        }
-
-        const finished = true
-        await sendMessage('uploadFinished', finished, tab.id)
-        return 'finished'
-    });
-
-    chrome.downloads.onChanged.addListener(delta => {
-        const { id, state } = delta;
-
-        if (activeDownloads[id]) {
-            if (state?.current == "complete") {
-                activeDownloads[id].status = "complete";
-            } else if (state?.current == "interrupted") {
-                activeDownloads[id].status = "interrupted";
-            }
-        }
-
-        // state は必須ではないので、tateがない場合は上の条件分岐で再代入されないので同じ状態が送られるだけ
-        sendMessage("downloadStatusUpdated", { id, status: activeDownloads[id].status });
-    })
-
     async function createBlobUrl(text: string): Promise<string> {
         const blob = new Blob([text], { type: 'text/plain' });
         return new Promise((resolve, reject) => {
@@ -67,6 +65,5 @@ export default defineBackground( async () => {
             reader.readAsDataURL(blob);
         })
     }
-
 });
 
