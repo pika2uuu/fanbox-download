@@ -41,7 +41,7 @@ export async function download() {
 
     console.log("========");
     console.log(dlList);
-    const res = await sendMessage('downloadStart', dlList).catch(console.error);
+    const res = await sendMessage('clickStart', dlList).catch(console.error);
     console.log(res);
     console.log("========")
 }
