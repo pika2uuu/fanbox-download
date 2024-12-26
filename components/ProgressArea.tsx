@@ -34,7 +34,6 @@ export default function ProgressArea() {
             label = `${indexPair.maxNum}/${indexPair.maxNum}`
         }
         setProgress({percent, label});
-        console.log("indexPair更新")
     }, [indexPair, finished])
 
     useEffect(() => {
@@ -43,9 +42,6 @@ export default function ProgressArea() {
             console.log("backgroundからメッセージを受け取った");
             const nextDownload: DlInfo = { targetFileName: `${msg.data.dl.dirname}/${msg.data.dl.filename}`, index: msg.data.index, maxNum: msg.data.maxNum };
             setIndexPair({ index: nextDownload.index, maxNum: nextDownload.maxNum });
-            console.log(indexPair)
-
-            console.log(indexPair)
             setDownloads((prev) => [...prev, nextDownload]);
         });
 
@@ -65,7 +61,6 @@ export default function ProgressArea() {
             <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
                 {/*新しいのを上に表示したいので逆順にする。*/}
                 {downloads.slice().reverse().map((dlInfo, i) => {
-                    console.log(dlInfo);
                     if (finished) {
                         return (
                             <DownloadItem key={i} finished={true} path={dlInfo.path} index={dlInfo.index} maxNum={dlInfo.maxNum} />

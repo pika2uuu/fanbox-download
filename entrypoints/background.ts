@@ -1,5 +1,4 @@
 import {onMessage1, sendMessage1} from '../utils/messaging';
-import { Download} from "@/utils/type.ts";
 
 export default defineBackground( async () => {
     const activeDownloads: ActiveDownloads = {};
