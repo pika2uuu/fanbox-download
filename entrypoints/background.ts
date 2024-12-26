@@ -1,4 +1,4 @@
-import {onMessage1, sendMessage1} from '../utils/messaging';
+import {onMessage, sendMessage} from '../utils/messaging';
 
 export default defineBackground( async () => {
     const activeDownloads: ActiveDownloads = {};
@@ -27,19 +27,19 @@ export default defineBackground( async () => {
         });
     }
 
-    onMessage1('ping', async (dlList) =>  {
+    onMessage('downloadStart', async (dlList) =>  {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         const maxNum = dlList.data.length;
         for (const [index, dl] of dlList.data.entries()) {
             const downloadId = await downloadStart(dl);
             console.log("ダウンロード開始")
             if (downloadId !== -1) {
-                await sendMessage1('uploadFile', {dl, index, maxNum }, tab.id)
+                await sendMessage('uploadFile', {dl, index, maxNum }, tab.id)
             }
         }
 
         const finished = true
-        await sendMessage1('uploadFinished', finished, tab.id)
+        await sendMessage('uploadFinished', finished, tab.id)
         return 'finished'
     });
 
@@ -55,7 +55,7 @@ export default defineBackground( async () => {
         }
 
         // state は必須ではないので、tateがない場合は上の条件分岐で再代入されないので同じ状態が送られるだけ
-        sendMessage1("downloadStatusUpdated", { id, status: activeDownloads[id].status });
+        sendMessage("downloadStatusUpdated", { id, status: activeDownloads[id].status });
     })
 
     async function createBlobUrl(text: string): Promise<string> {
