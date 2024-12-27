@@ -77,7 +77,6 @@ export default function ProgressArea() {
                 {Object.entries(allDownloads).reverse().map(([id, dl]) => {
                     const {targetFilename, state} = dl;
 
-                    console.log(targetFilename, state)
                     if (state == "in_progress") {
                         return <DownloadItem key={id} finished={false} targetFilename={targetFilename}  />
                     }else {

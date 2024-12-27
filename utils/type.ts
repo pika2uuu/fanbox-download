@@ -4,8 +4,6 @@ export type DownloadItem = {
     text?: string;
 }
 
-export type DownloadQueue = DownloadItem[];
-
 export type DownloadJob = {
     targetFilename: string,
     index: number,

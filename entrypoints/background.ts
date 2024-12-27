@@ -3,26 +3,15 @@ import {onMessage, sendMessage} from '../utils/messaging';
 export default defineBackground( async () => {
     const allDownloads: AllDownloads = {};
 
-    onMessage('clickStart', async (dlQueue) =>  {
-        const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        const maxNum = dlQueue.data.length;
-
-        for (const [index, dl] of dlQueue.data.entries()) {
-            const id = await downloadStart(dl);
-            const targetFilename =  dl.targetFilename
-            console.log("ダウンロード開始")
-
-            if (id !== -1) {
-                // ダウンロード対象のファイルを保存しているRecordを保存するメッセージ
-                await sendMessage("downloadStatusStarted", {id, targetFilename, state: "in_progress"}, tab.id);
-                // TODO 
-                // いらないかも。downloadQueueを廃止予定だから、ダウンロード数が全部で何個かは確定情報じゃなく変わっていくから。対象のファイルが全部の中から何個めかを保存するメッセージ。(4/60)みたいな表記のためのindexとmaxNum
-                await sendMessage('downloadStarted', {targetFilename, index, maxNum }, tab.id)
-            }
+    onMessage('pushDownloadQueue', async (dl) =>  {
+        const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+        const id = await downloadStart(dl.data);
+        const targetFilename = dl.data.targetFilename
+        console.log(dl)
+        console.log("ダウンロードキューに追加", targetFilename)
+        if (id !== -1) {
+            await sendMessage("downloadStatusStarted", { id, targetFilename, state: "in_progress" }, activeTab.id);
         }
-        const finished = true
-        await sendMessage('downloadFinished', finished, tab.id)
-        return 'finished'
     });
 
     chrome.downloads.onChanged.addListener(async (delta) => {

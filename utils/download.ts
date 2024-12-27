@@ -6,7 +6,6 @@ export async function download() {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
     // let ignoreFreePlan = true;
     const url = ""
-    const dlQueue: DownloadQueue = [];
     // const url = ""
     // const url = ""
     // const url = ""
@@ -28,22 +27,15 @@ export async function download() {
             console.warn(`支援金額が足りないためコンテンツを取得できませんでした。title:『${post.title}』`)
             continue;
         }
-        addPostToDownloadList(dlQueue, post)
+        await addPostToDownloadList(post)
     }
     const profileJson = await fetchData(profileAPIUrl)
     const profile = extractProfileData(profileJson);
-    addProfileToDownloadList(dlQueue, profile);
+    await addProfileToDownloadList(profile);
 
     const plansJson = await fetchData(plansAPIUrl);
     const plans = extractPlansData(plansJson['body']);
-    addPlansToDownloadList(dlQueue, plans);
-
-
-    console.log("========");
-    console.log(dlQueue);
-    const res = await sendMessage('clickStart', dlQueue).catch(console.error);
-    console.log(res);
-    console.log("========")
+    await addPlansToDownloadList(plans);
 }
 
 
@@ -71,36 +63,36 @@ async function fetchData(url: string) {
     }
 }
 
-function addPlansToDownloadList(dlQueue: DownloadQueue, plans: Plan[]) {
+async function addPlansToDownloadList(plans: Plan[]) {
     const dirname = "plans"
     // プランの内容のテキストを追加
     for (const plan of plans) {
         const filename = `${plan.title}.txt`
         const text = `${plan.title}\n${plan.description}\n￥${plan.fee}`
-        dlQueue.push({ targetFilename: toFullPath(dirname, filename),  text })
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, filename),  text });
     }
     // プランの画像を追加
     for (const plan of plans) {
         const filename = `${plan.title}.jpeg`;
-        dlQueue.push({ targetFilename: toFullPath(dirname, filename), url: plan.coverImageUrl})
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, filename), url: plan.coverImageUrl});
     }
 }
 
 // profileItem の要素のtypeがimage以外にあるか調査
-function addProfileToDownloadList(dlQueue: DownloadQueue, profile: Profile) {
+async function addProfileToDownloadList(profile: Profile) {
     const dirname = "profile";
     // ヘッダー画像が設定されているときだけ
     if (profile.coverImageUrl) {
-        dlQueue.push({ targetFilename: toFullPath(dirname, "header.jpeg"), url: profile.coverImageUrl });
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "header.jpeg"), url: profile.coverImageUrl });
     }
     // アイコンが設定されてない場合だけ保存
     if (profile.user.iconUrl) {
-        dlQueue.push({ targetFilename: toFullPath(dirname, "icon.jpeg"), url: profile.user.iconUrl });
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "icon.jpeg"), url: profile.user.iconUrl });
     }
     // ポートフォリオ画像の場合はリンク保存する。
     for (const [i, item] of profile.profileItems.entries() ) {
         if (isImageProfileItem(item)) {
-            dlQueue.push({ targetFilename: toFullPath(dirname, `portfolio${i}.jpeg`), url: item.imageUrl })
+            await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, `portfolio${i}.jpeg`), url: item.imageUrl })
         }
     }
     // ポートフォリオ動画URLと自己紹介文テキストファイルにまとめてダウンロードする
@@ -110,7 +102,7 @@ function addProfileToDownloadList(dlQueue: DownloadQueue, profile: Profile) {
             videoUrls.push(formatVideoUrl(item.serviceProvider, item.videoId));
         }
     }
-    dlQueue.push({ targetFilename: toFullPath(dirname, "profile.txt"), text: formatProfileText(profile, videoUrls) });
+    await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "profile.txt"), text: formatProfileText(profile, videoUrls) })
 }
 
 function formatVideoUrl (site: string, videoId: string) {
@@ -142,18 +134,17 @@ function formatProfileText(profile: Profile, videoUrls: string[]): string {
 }
 
 // 投稿の添付ファイルと本文をダウンロードするリストに追加。投稿は5種類あるので本文のbodyは場合わけ
-function addPostToDownloadList(dlQueue: DownloadQueue, post: Post) {
+async function addPostToDownloadList( post: Post) {
     const dirname = `${toTimestamp(post.publishedDatetime)}${post.title.trim()}`;
     const type = post.type;
     const body = post.body;
 
     // 投稿のヘッダー画像があれば保存
     if (post.coverImageUrl) {
-        dlQueue.push({ targetFilename: `${dirname}/cover.jpeg`, url: post.coverImageUrl });
+        await sendMessage("pushDownloadQueue", { targetFilename: `${dirname}/cover.jpeg`, url: post.coverImageUrl });
     }
 
     // URL、タグ、タイトル、日付、金額 は投稿の種類によらず共通なので text に事前に格納する
-    const filename = "post.txt"
     const url = `https://www.fanbox.cc/@${post.creatorId}/posts/${post.id}`
     const tag = post.tags.map(item => `#${item}`).join(" "); // ["a", "b", "c"] => "#a #b #c"
     let text = `${url}\n${post.title}\n${formatDateToYMDHM(post.publishedDatetime)} ￥${post.feeRequired}\n${tag}\n`;
@@ -162,42 +153,42 @@ function addPostToDownloadList(dlQueue: DownloadQueue, post: Post) {
     if (isTextBody(type, body)) { // ユーザー型定義ガード
         // テキスト投稿
         text += body.text;
-        dlQueue.push({ targetFilename: toFullPath(dirname, filename), text })
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "body.txt"), text });
     } else if (isVideoBody(type, body)) {
         // ビデオ・音楽投稿
         text += formatVideoData(body);
-        dlQueue.push({ targetFilename: toFullPath(dirname, filename), text})
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "body.txt"), text});
     } else if (isImageBody(type, body)) {
         // 画像投稿
         // └--画像一覧
-        body.images.forEach(image => {
-            dlQueue.push({ targetFilename: toFullPath(dirname, `image.${image.extension}`), url: image.originalUrl });
-        });
+        for (const image of body.images) {
+            await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, `image.${image.extension}`), url: image.originalUrl });
+        }
         // └--投稿本文
         text += body.text;
-        dlQueue.push({ targetFilename: toFullPath(dirname, filename), text});
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "body.txt"), text});
     } else if (isFileBody(type, body)) {
         // ファイル投稿
         // └--ファイル一覧
-        body.files.forEach((file) => {
-            dlQueue.push({ targetFilename: toFullPath(dirname, `${file.name}.${file.extension}`), url: file.url });
-        });
+        for (const file of body.files) {
+            await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, `${file.name}.${file.extension}`), url: file.url });
+        }
         // └--投稿本文
         text += body.text
-        dlQueue.push({ targetFilename: toFullPath(dirname, filename), text });
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "body.txt"), text });
     } else if (isArticleBody(type, body)) {
         // ブログ投稿
         // └--画像一覧
-        Object.values(body.imageMap).forEach(image => {
-            dlQueue.push({ targetFilename: toFullPath(dirname, `image.${image.extension}`), url: image.originalUrl });
-        });
+        for (const image of Object.values(body.imageMap)) {
+            await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, `image.${image.extension}`), url: image.originalUrl });
+        }
         // └--ファイル一覧
-        Object.values(body.fileMap).forEach(file => {
-            dlQueue.push({ targetFilename: toFullPath(dirname, `${file.name}.${file.extension}`), url: file.url });
-        });
+        for (const file of Object.values(body.fileMap)) {
+            await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, `${file.name}.${file.extension}`), url: file.url });
+        }
         // └--投稿本文
         text += formatArticleText(body)
-        dlQueue.push({ targetFilename: toFullPath(dirname, filename), text });
+        await sendMessage("pushDownloadQueue", { targetFilename: toFullPath(dirname, "body.txt"), text });
     }
 }
 
@@ -227,7 +218,7 @@ function formatDateToYMDHM(dateString: string): string {
 function toFullPath(dirname: string, filename: string): string {
     const dir = dirname.replaceAll("/", "-");
     const file = filename.replaceAll("/", "-");
-    return `${dir}/${filename}`;
+    return `downloads/${dir}/${filename}`;
 }
 
 function extractPostData(json: any): Post {
