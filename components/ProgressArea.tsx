@@ -37,6 +37,7 @@ export default function ProgressArea() {
     }, [indexPair, finished])
 
     useEffect(() => {
+        // 各ファイルのダウンロードが開始した直後に受け取るメッセージ。10個ファイルがあれば10回メッセージを受け取る
         onMessage('downloadStarted', (msg) => {
             const { targetFilename, index, maxNum } = msg.data;
             setIndexPair({ index, maxNum: maxNum });
@@ -45,6 +46,24 @@ export default function ProgressArea() {
                 { targetFilename, index, maxNum },
             ]);
         });
+
+        // ダウンロード開始に成功した直後。
+        onMessage("downloadStatusStarted", (msg) => {
+            const { id, targetFilename, status} = msg.data;
+            setAllDownloads((prev) => ({
+                ...prev,
+                [id]: { targetFilename, status },
+            }));
+        })
+
+        // ダウンロード進行状況が更新された直後。
+        onMessage("downloadStatusUpdated", (msg) => {
+            const { id, status } = msg.data;
+            setAllDownloads((prev) => ({
+                ...prev,
+                [id]: { ...prev[id], status },
+            }));
+        })
 
         onMessage('downloadFinished', (msg) => {
             console.log('ダウンロードが終わり');
