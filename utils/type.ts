@@ -13,9 +13,14 @@ export type DownloadJob = {
     maxNum: number,
 }
 
-export type DownloadStatus = {
+export type DownloadStatusForStart = {
     id: number,
-    targetFilename?: string,
+    targetFilename: string,
+    status: string,
+}
+
+export type DownloadStatusForUpdate = {
+    id: number,
     status: string,
 }
 
