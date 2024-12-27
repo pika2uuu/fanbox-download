@@ -74,7 +74,7 @@ export default function ProgressArea() {
             </Progress.Root>
             {/*<ProgressStatus />*/}
             <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
-                {Object.entries(allDownloads).map(([id, dl]) => {
+                {Object.entries(allDownloads).reverse().map(([id, dl]) => {
                     const {targetFilename, state} = dl;
 
                     console.log(targetFilename, state)
