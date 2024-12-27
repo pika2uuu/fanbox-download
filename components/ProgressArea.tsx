@@ -58,10 +58,10 @@ export default function ProgressArea() {
 
         // ダウンロード進行状況が更新された直後。
         onMessage("downloadStatusUpdated", (msg) => {
-            const { id, status } = msg.data;
+            const { id, state } = msg.data;
             setAllDownloads((prev) => ({
                 ...prev,
-                [id]: { ...prev[id], status },
+                [id]: { ...prev[id], state },
             }));
         })
 
