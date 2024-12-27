@@ -13,8 +13,11 @@ export default defineBackground( async () => {
             console.log("ダウンロード開始")
 
             if (id !== -1) {
+                // ダウンロード対象のファイルを保存しているRecordを保存するメッセージ
                 await sendMessage("downloadStatusStarted", {id, targetFilename, status: "in_progress"}, tab.id);
-                await sendMessage('downloadStarted', {targetFilename, id , index, maxNum }, tab.id)
+                // TODO 
+                // いらないかも。downloadQueueを廃止予定だから、ダウンロード数が全部で何個かは確定情報じゃなく変わっていくから。対象のファイルが全部の中から何個めかを保存するメッセージ。(4/60)みたいな表記のためのindexとmaxNum
+                await sendMessage('downloadStarted', {targetFilename, index, maxNum }, tab.id)
             }
         }
         const finished = true
