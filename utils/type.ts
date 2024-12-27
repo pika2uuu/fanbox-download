@@ -1,6 +1,5 @@
 export type DownloadItem = {
-    dirname: string;
-    filename: string;
+    fullPath: string;
     url?: string;
     text?: string;
 }

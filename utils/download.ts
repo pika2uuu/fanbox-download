@@ -77,12 +77,12 @@ function addPlansToDownloadList(dlQueue: DownloadQueue, plans: Plan[]) {
     for (const plan of plans) {
         const filename = `${plan.title}.txt`
         const text = `${plan.title}\n${plan.description}\n￥${plan.fee}`
-        dlQueue.push({ dirname, filename, text })
+        dlQueue.push({ fullPath: toFullPath(dirname, filename),  text })
     }
     // プランの画像を追加
     for (const plan of plans) {
         const filename = `${plan.title}.jpeg`;
-        dlQueue.push({ dirname, filename, url: plan.coverImageUrl})
+        dlQueue.push({ fullPath: toFullPath(dirname, filename), url: plan.coverImageUrl})
     }
 }
 
@@ -91,16 +91,16 @@ function addProfileToDownloadList(dlQueue: DownloadQueue, profile: Profile) {
     const dirname = "profile";
     // ヘッダー画像が設定されているときだけ
     if (profile.coverImageUrl) {
-        dlQueue.push({ dirname, filename: "header.jpeg", url: profile.coverImageUrl });
+        dlQueue.push({ fullPath: toFullPath(dirname, "header.jpeg"), url: profile.coverImageUrl });
     }
     // アイコンが設定されてない場合だけ保存
     if (profile.user.iconUrl) {
-        dlQueue.push({ dirname, filename: "icon.jpeg", url: profile.user.iconUrl });
+        dlQueue.push({ fullPath: toFullPath(dirname, "icon.jpeg"), url: profile.user.iconUrl });
     }
     // ポートフォリオ画像の場合はリンク保存する。
     for (const [i, item] of profile.profileItems.entries() ) {
         if (isImageProfileItem(item)) {
-            dlQueue.push({ dirname, filename: `portfolio${i}.jpeg`, url: item.imageUrl })
+            dlQueue.push({ fullPath: toFullPath(dirname, `portfolio${i}.jpeg`), url: item.imageUrl })
         }
     }
     // ポートフォリオ動画URLと自己紹介文テキストファイルにまとめてダウンロードする
@@ -110,7 +110,7 @@ function addProfileToDownloadList(dlQueue: DownloadQueue, profile: Profile) {
             videoUrls.push(formatVideoUrl(item.serviceProvider, item.videoId));
         }
     }
-    dlQueue.push({ dirname, filename: "profile.txt", text: formatProfileText(profile, videoUrls) });
+    dlQueue.push({ fullPath: toFullPath(dirname, "profile.txt"), text: formatProfileText(profile, videoUrls) });
 }
 
 function formatVideoUrl (site: string, videoId: string) {
@@ -149,7 +149,7 @@ function addPostToDownloadList(dlQueue: DownloadQueue, post: Post) {
 
     // 投稿のヘッダー画像があれば保存
     if (post.coverImageUrl) {
-        dlQueue.push({ dirname, filename: "cover.jpeg", url: post.coverImageUrl });
+        dlQueue.push({ fullPath: `${dirname}/cover.jpeg`, url: post.coverImageUrl });
     }
 
     // URL、タグ、タイトル、日付、金額 は投稿の種類によらず共通なので text に事前に格納する
@@ -162,42 +162,42 @@ function addPostToDownloadList(dlQueue: DownloadQueue, post: Post) {
     if (isTextBody(type, body)) { // ユーザー型定義ガード
         // テキスト投稿
         text += body.text;
-        dlQueue.push({ dirname, filename, text })
+        dlQueue.push({ fullPath: toFullPath(dirname, filename), text })
     } else if (isVideoBody(type, body)) {
         // ビデオ・音楽投稿
         text += formatVideoData(body);
-        dlQueue.push({ dirname, filename, text})
+        dlQueue.push({ fullPath: toFullPath(dirname, filename), text})
     } else if (isImageBody(type, body)) {
         // 画像投稿
         // └--画像一覧
         body.images.forEach(image => {
-            dlQueue.push({ dirname, filename: `image.${image.extension}`, url: image.originalUrl });
+            dlQueue.push({ fullPath: toFullPath(dirname, `image.${image.extension}`), url: image.originalUrl });
         });
         // └--投稿本文
         text += body.text;
-        dlQueue.push({ dirname, filename, text});
+        dlQueue.push({ fullPath: toFullPath(dirname, filename), text});
     } else if (isFileBody(type, body)) {
         // ファイル投稿
         // └--ファイル一覧
         body.files.forEach((file) => {
-            dlQueue.push({ dirname, filename: `${file.name}.${file.extension}`, url: file.url });
+            dlQueue.push({ fullPath: toFullPath(dirname, `${file.name}.${file.extension}`), url: file.url });
         });
         // └--投稿本文
         text += body.text
-        dlQueue.push({ dirname, filename, text });
+        dlQueue.push({ fullPath: toFullPath(dirname, filename), text });
     } else if (isArticleBody(type, body)) {
         // ブログ投稿
         // └--画像一覧
         Object.values(body.imageMap).forEach(image => {
-            dlQueue.push({ dirname, filename: `image.${image.extension}`, url: image.originalUrl });
+            dlQueue.push({ fullPath: toFullPath(dirname, `image.${image.extension}`), url: image.originalUrl });
         });
         // └--ファイル一覧
         Object.values(body.fileMap).forEach(file => {
-            dlQueue.push({ dirname, filename: `${file.name}.${file.extension}`, url: file.url });
+            dlQueue.push({ fullPath: toFullPath(dirname, `${file.name}.${file.extension}`), url: file.url });
         });
         // └--投稿本文
         text += formatArticleText(body)
-        dlQueue.push({ dirname, filename, text });
+        dlQueue.push({ fullPath: toFullPath(dirname, filename), text });
     }
 }
 
@@ -221,6 +221,13 @@ function formatDateToYMDHM(dateString: string): string {
     const minute = String(date.getMinutes()).padStart(2, '0');
 
     return `${y}年${m}月${d}日 ${hour}:${minute}`;
+}
+
+// パスに / があったら自動的にディレクトリが作られるので、ディレクトリ名とファイル名から / を取り除く。タイトルに日付を書いてる時に / がついてることがある
+function toFullPath(dirname: string, filename: string): string {
+    const dir = dirname.replaceAll("/", "-");
+    const file = filename.replaceAll("/", "-");
+    return `${dir}/${filename}`;
 }
 
 function extractPostData(json: any): Post {
