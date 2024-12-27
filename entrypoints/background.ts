@@ -7,7 +7,7 @@ export default defineBackground( async () => {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         const maxNum = dlQueue.data.length;
         for (const [index, dl] of dlQueue.data.entries()) {
-            const downloadId = await downloadStart(dl);
+            const id = await downloadStart(dl);
             const targetFilename =  `${dl.dirname}/${dl.filename}`
             console.log("ダウンロード開始")
             if (id !== -1) {
