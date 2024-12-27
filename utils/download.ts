@@ -1,5 +1,5 @@
 // import {logger} from "@/utils/logger.ts";
-// import {Profile, Plan, Post, ArticleBody, DlList, ImageBody, VideoBody, ImageProfileItem, VideoProfileItem} from "@/utils/type.ts";
+import {Profile, Plan, Post, ArticleBody, ImageBody, VideoBody, ImageProfileItem, VideoProfileItem} from "@/utils/type.ts";
 import { sendMessage } from '../utils/messaging'
 
 export async function download() {
@@ -27,15 +27,15 @@ export async function download() {
             console.warn(`支援金額が足りないためコンテンツを取得できませんでした。title:『${post.title}』`)
             continue;
         }
-        await addPostToDownloadList(post)
+        await pushPostToDownloadQueue(post)
     }
     const profileJson = await fetchData(profileAPIUrl)
     const profile = extractProfileData(profileJson);
-    await addProfileToDownloadList(profile);
+    await pushProfileToDownloadQueue(profile);
 
     const plansJson = await fetchData(plansAPIUrl);
     const plans = extractPlansData(plansJson['body']);
-    await addPlansToDownloadList(plans);
+    await pushPlansToDownloadQueue(plans);
 }
 
 
@@ -63,7 +63,7 @@ async function fetchData(url: string) {
     }
 }
 
-async function addPlansToDownloadList(plans: Plan[]) {
+async function pushPlansToDownloadQueue(plans: Plan[]) {
     const dirname = "plans"
     // プランの内容のテキストを追加
     for (const plan of plans) {
@@ -79,7 +79,7 @@ async function addPlansToDownloadList(plans: Plan[]) {
 }
 
 // profileItem の要素のtypeがimage以外にあるか調査
-async function addProfileToDownloadList(profile: Profile) {
+async function pushProfileToDownloadQueue(profile: Profile) {
     const dirname = "profile";
     // ヘッダー画像が設定されているときだけ
     if (profile.coverImageUrl) {
@@ -134,7 +134,7 @@ function formatProfileText(profile: Profile, videoUrls: string[]): string {
 }
 
 // 投稿の添付ファイルと本文をダウンロードするリストに追加。投稿は5種類あるので本文のbodyは場合わけ
-async function addPostToDownloadList( post: Post) {
+async function pushPostToDownloadQueue( post: Post) {
     const dirname = `${toTimestamp(post.publishedDatetime)}${post.title.trim()}`;
     const type = post.type;
     const body = post.body;
@@ -218,7 +218,7 @@ function formatDateToYMDHM(dateString: string): string {
 function toFullPath(dirname: string, filename: string): string {
     const dir = dirname.replaceAll("/", "-");
     const file = filename.replaceAll("/", "-");
-    return `downloads/${dir}/${filename}`;
+    return `downloads/${dir}/${file}`;
 }
 
 function extractPostData(json: any): Post {
