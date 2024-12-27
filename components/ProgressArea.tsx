@@ -49,10 +49,10 @@ export default function ProgressArea() {
 
         // ダウンロード開始に成功した直後。
         onMessage("downloadStatusStarted", (msg) => {
-            const { id, targetFilename, status} = msg.data;
+            const { id, targetFilename, state} = msg.data;
             setAllDownloads((prev) => ({
                 ...prev,
-                [id]: { targetFilename, status },
+                [id]: { targetFilename, state },
             }));
         })
 

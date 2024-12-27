@@ -16,7 +16,7 @@ export type DownloadJob = {
 export type DownloadStatusForStart = {
     id: number,
     targetFilename: string,
-    status: string,
+    state: string,
 }
 
 export type DownloadStatusForUpdate = {
@@ -26,7 +26,7 @@ export type DownloadStatusForUpdate = {
 
 export type AllDownload = {
     targetFilename: string;
-    status: string;
+    state: string;
 };
 
 export type AllDownloads = Record<number, AllDownload>;
