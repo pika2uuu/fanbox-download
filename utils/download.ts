@@ -141,7 +141,7 @@ function formatProfileText(profile: Profile, videoUrls: string[]): string {
     return `${profile.user.name}(@${profile.creatorId})${descriptionResult}${snsResult}${itemResult}`;
 }
 
-// 投稿の添付ファイルと本文をダウンロードするリストに追加。投稿のタイプは5種類あり、それぞれjsonが違うので場合わけ
+// 投稿の添付ファイルと本文をダウンロードするリストに追加。投稿は5種類あるので本文のbodyは場合わけ
 function addPostToDownloadList(dlQueue: DownloadQueue, post: Post) {
     const dirname = `${toTimestamp(post.publishedDatetime)}${post.title.trim()}`;
     const type = post.type;
@@ -152,11 +152,13 @@ function addPostToDownloadList(dlQueue: DownloadQueue, post: Post) {
         dlQueue.push({ dirname, filename: "cover.jpeg", url: post.coverImageUrl });
     }
 
+    // URL、タグ、タイトル、日付、金額 は投稿の種類によらず共通なので text に事前に格納する
     const filename = "post.txt"
     const url = `https://www.fanbox.cc/@${post.creatorId}/posts/${post.id}`
     const tag = post.tags.map(item => `#${item}`).join(" "); // ["a", "b", "c"] => "#a #b #c"
     let text = `${url}\n${post.title}\n${formatDateToYMDHM(post.publishedDatetime)} ￥${post.feeRequired}\n${tag}\n`;
 
+    // 投稿のタイプによってjsonのbodyキーの値が違うので場合わけしてtextに追記する
     if (isTextBody(type, body)) { // ユーザー型定義ガード
         // テキスト投稿
         text += body.text;
