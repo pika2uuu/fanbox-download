@@ -1,7 +1,6 @@
 import {Progress, ScrollArea} from "@mantine/core";
 import {onMessage} from "@/utils/messaging";
 import {useEffect} from "react";
-import {DlInfo} from "../utils/type"
 import DownloadItem from "./DownloadItem";
 
 type IndexPair = {
