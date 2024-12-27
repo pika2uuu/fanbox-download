@@ -1,6 +1,3 @@
-export type Url = {
-    url: string;
-}
 export type Download = {
     dirname: string;
     filename: string;
