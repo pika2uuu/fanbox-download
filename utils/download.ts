@@ -333,9 +333,6 @@ function generateUserUrls (url: string): { profileAPIUrl: string, allPagesAPIUrl
     const fanboxBaseUrl = "https://api.fanbox.cc";
     const pixivBaseUrl = "https://api.booth.pm";
 
-    //  https://api.fanbox.cc/creator.get?creatorId=kanashii-sadame
-    //  https://api.fanbox.cc/creator.get?creatorId=kanashii-sadame
-
     return {
         profileAPIUrl: `${fanboxBaseUrl}/creator.get?creatorId=${userID}`,
         allPagesAPIUrl: `${fanboxBaseUrl}/post.paginateCreator?creatorId=${userID}`,
@@ -370,9 +367,9 @@ function isFileBody(type: string, body: Post['body']): body is FileBody {
 }
 
 function isImageProfileItem(item: ImageProfileItem | VideoProfileItem): item is ImageProfileItem {
-    return item.type === "image"; // "image" の場合は ImageProfileItem と判定
+    return item.type === "image";
 }
 
 function isVideoProfileItem(item: ImageProfileItem | VideoProfileItem): item is VideoProfileItem {
-    return item.type === "video"; // "video" の場合は VideoProfileItem と判定
+    return item.type === "video";
 }
