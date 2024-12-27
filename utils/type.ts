@@ -21,7 +21,7 @@ export type DownloadStatusForStart = {
 
 export type DownloadStatusForUpdate = {
     id: number,
-    status: string,
+    state: string,
 }
 
 export type AllDownload = {
