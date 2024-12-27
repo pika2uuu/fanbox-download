@@ -15,6 +15,7 @@ type Progress = {
 
 export default function ProgressArea() {
     const [downloads, setDownloads] = useState<DownloadJob[]>([]);
+    const [allDownloads, setAllDownloads] = useState<AllDownloads>([]);
     const [finished, setFinished] = useState<boolean>(false);
     const [indexPair, setIndexPair] = useState<IndexPair>({index: 0, maxNum: 0})
     const [progress, setProgress] = useState<Progress>({ percent: 0, label: "0/0"});
