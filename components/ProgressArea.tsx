@@ -14,7 +14,7 @@ type Progress = {
 }
 
 export default function ProgressArea() {
-    const [downloads, setDownloads] = useState<DlInfo[]>([]);
+    const [downloads, setDownloads] = useState<DownloadJob[]>([]);
     const [finished, setFinished] = useState<boolean>(false);
     const [indexPair, setIndexPair] = useState<IndexPair>({index: 0, maxNum: 0})
     const [progress, setProgress] = useState<Progress>({ percent: 0, label: "0/0"});
@@ -36,12 +36,13 @@ export default function ProgressArea() {
     }, [indexPair, finished])
 
     useEffect(() => {
-        // メッセージリスナーを登録
         onMessage('downloadStarted', (msg) => {
-            console.log("backgroundからメッセージを受け取った");
-            const nextDownload: DlInfo = { targetFileName: `${msg.data.dl.dirname}/${msg.data.dl.filename}`, index: msg.data.index, maxNum: msg.data.maxNum };
-            setIndexPair({ index: nextDownload.index, maxNum: nextDownload.maxNum });
-            setDownloads((prev) => [...prev, nextDownload]);
+            const { targetFilename, index, maxNum } = msg.data;
+            setIndexPair({ index, maxNum: maxNum });
+            setDownloads((prev) => [
+                ...prev,
+                { targetFilename, index, maxNum },
+            ]);
         });
 
         onMessage('downloadFinished', (msg) => {
@@ -59,8 +60,8 @@ export default function ProgressArea() {
             {/*<ProgressStatus />*/}
             <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
                 {/*新しいのを上に表示したいので逆順にする。*/}
-                {downloads.slice().reverse().map((dlInfo, i) => {
-                    const targetFilename = dlInfo.targetFileName;
+                {downloads.slice().reverse().map((dlJob, i) => {
+                    const targetFilename = dlJob.targetFilename;
                     if (finished) {
                         return (
                             <DownloadItem key={i} finished={true} targetFilename={targetFilename} />
