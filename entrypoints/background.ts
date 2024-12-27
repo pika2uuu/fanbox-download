@@ -25,18 +25,15 @@ export default defineBackground( async () => {
         return 'finished'
     });
 
-    chrome.downloads.onChanged.addListener(delta => {
+    chrome.downloads.onChanged.addListener(async (delta) => {
         const { id, state } = delta;
+        // chrome.downloadsはbackgroundでしか使えないのでactiveTabのIDを取得する必要がある。
+        const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
         if (allDownloads[id]) {
-            // downloadDeltaのうち、stateが含まれているものだけを対象
-            if (state) {
-                if (state.current == "complete") {
-                    allDownloads[id].status = "complete";
-                } else if (state.current == "interrupted") {
-                    allDownloads[id].status = "interrupted";
-                }
-                sendMessage("downloadStatusUpdated", { id,  status: allDownloads[id].status });
+            // downloadDeltaのうち、stateが含まれているものだけを対象。complete か interrupted
+            if (state !== undefined && state.current !== undefined) {
+                await sendMessage("downloadStatusUpdated", { id, state: state.current }, activeTab.id);
             }
         }
     })
