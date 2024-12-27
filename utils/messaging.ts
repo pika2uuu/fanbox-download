@@ -1,8 +1,8 @@
 import { defineExtensionMessaging } from '@webext-core/messaging';
-import {DownloadStatusForUpdate, DownloadStatusForStart} from "@/utils/type.ts";
+import {DownloadStatusForUpdate, DownloadStatusForStart, DownloadItem} from "@/utils/type.ts";
 
 interface MessageProtocol {
-  clickStart: (dlQueue: DownloadQueue) => string;
+  pushDownloadQueue: (dlItem: DownloadItem) => void;
   downloadStarted: (dl: DownloadJob) => string;
   downloadFinished: (finished: boolean) => void;
     downloadStatusStarted: (activeDownloads: DownloadStatusForStart) => void;
