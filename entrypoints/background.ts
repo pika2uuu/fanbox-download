@@ -25,10 +25,14 @@ export default defineBackground( async () => {
         const { id, state } = delta;
 
         if (allDownloads[id]) {
-            if (state?.current == "complete") {
-                allDownloads[id].status = "complete";
-            } else if (state?.current == "interrupted") {
-                allDownloads[id].status = "interrupted";
+            // downloadDeltaのうち、stateが含まれているものだけを対象
+            if (state) {
+                if (state.current == "complete") {
+                    allDownloads[id].status = "complete";
+                } else if (state.current == "interrupted") {
+                    allDownloads[id].status = "interrupted";
+                }
+                sendMessage("downloadStatusUpdated", { id,  status: allDownloads[id].status });
             }
         }
         // state は必須ではないので、tateがない場合は上の条件分岐で再代入されないので同じ状態が送られるだけ
