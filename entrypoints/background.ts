@@ -1,7 +1,7 @@
 import {onMessage, sendMessage} from '../utils/messaging';
 
 export default defineBackground( async () => {
-    const activeDownloads: ActiveDownloads = {};
+    const allDownloads: AllDownloads = {};
 
     onMessage('clickStart', async (dlQueue) =>  {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
@@ -22,15 +22,15 @@ export default defineBackground( async () => {
     chrome.downloads.onChanged.addListener(delta => {
         const { id, state } = delta;
 
-        if (activeDownloads[id]) {
+        if (allDownloads[id]) {
             if (state?.current == "complete") {
-                activeDownloads[id].status = "complete";
+                allDownloads[id].status = "complete";
             } else if (state?.current == "interrupted") {
-                activeDownloads[id].status = "interrupted";
+                allDownloads[id].status = "interrupted";
             }
         }
         // state は必須ではないので、tateがない場合は上の条件分岐で再代入されないので同じ状態が送られるだけ
-        sendMessage("downloadStatusUpdated", { id, status: activeDownloads[id].status });
+        sendMessage("downloadStatusUpdated", { id, status: allDownloads[id].status });
     })
 
     async function downloadStart(dl: DownloadItem): Promise<number> {

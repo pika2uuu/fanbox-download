@@ -15,15 +15,16 @@ export type DownloadJob = {
 
 export type DownloadStatus = {
     id: number,
+    targetFilename: string,
     status: string,
 }
 
-export type ActiveDownload = {
+export type AllDownload = {
     targetFilename: string;
     status: string;
 };
 
-export type ActiveDownloads = Record<number, ActiveDownload>;
+export type AllDownloads = Record<number, AllDownload>;
 
 export type User = {
     userId: string;
