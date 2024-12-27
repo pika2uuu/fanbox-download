@@ -6,12 +6,13 @@ export default defineBackground( async () => {
     onMessage('clickStart', async (dlQueue) =>  {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         const maxNum = dlQueue.data.length;
+
         for (const [index, dl] of dlQueue.data.entries()) {
             const id = await downloadStart(dl);
             const targetFilename =  `${dl.dirname}/${dl.filename}`
             console.log("ダウンロード開始")
+
             if (id !== -1) {
-                const targetFilename = `${dl.dirname}/${dl.filename}`
                 await sendMessage("downloadStatusStarted", {id, targetFilename, status: "in_progress"}, tab.id);
                 await sendMessage('downloadStarted', {targetFilename, id , index, maxNum }, tab.id)
             }
@@ -35,8 +36,6 @@ export default defineBackground( async () => {
                 sendMessage("downloadStatusUpdated", { id,  status: allDownloads[id].status });
             }
         }
-        // state は必須ではないので、tateがない場合は上の条件分岐で再代入されないので同じ状態が送られるだけ
-        sendMessage("downloadStatusUpdated", { id, status: allDownloads[id].status });
     })
 
     async function downloadStart(dl: DownloadItem): Promise<number> {
@@ -46,7 +45,7 @@ export default defineBackground( async () => {
 
         try {
             const downloadId = await downloadFile(downloadUrl, targetFilename);
-            activeDownloads[downloadId] = { targetFilename, status: "in_progress" };
+            allDownloads[downloadId] = { targetFilename, status: "in_progress" };
             return downloadId;
         } catch (error) {
             console.error(`ダウンロードに失敗しました : ${error}`);
