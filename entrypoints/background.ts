@@ -8,9 +8,10 @@ export default defineBackground( async () => {
         const maxNum = dlQueue.data.length;
         for (const [index, dl] of dlQueue.data.entries()) {
             const downloadId = await downloadStart(dl);
+            const targetFilename =  `${dl.dirname}/${dl.filename}`
             console.log("ダウンロード開始")
             if (downloadId !== -1) {
-                await sendMessage('downloadStarted', {dl, index, maxNum }, tab.id)
+                await sendMessage('downloadStarted', {targetFilename, index, maxNum }, tab.id)
             }
         }
         const finished = true
@@ -32,7 +33,7 @@ export default defineBackground( async () => {
         sendMessage("downloadStatusUpdated", { id, status: activeDownloads[id].status });
     })
 
-    async function downloadStart(dl: Download): Promise<number> {
+    async function downloadStart(dl: DownloadItem): Promise<number> {
         const { dirname, filename, url, text } = dl;
         const targetFilename = `downloads/${dirname.replaceAll("/", "-")}/${filename}`;
         const downloadUrl = url || await createBlobUrl(text!)

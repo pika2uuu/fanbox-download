@@ -7,9 +7,8 @@ export type DownloadItem = {
 
 export type DownloadQueue = DownloadItem[];
 
-
-export type DlInfo = {
-    targetFileName: string,
+export type DownloadJob = {
+    targetFilename: string,
     index: number,
     maxNum: number,
 }
