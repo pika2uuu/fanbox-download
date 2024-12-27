@@ -1,17 +1,12 @@
-export type Download = {
+export type DownloadItem = {
     dirname: string;
     filename: string;
     url?: string;
     text?: string;
 }
 
-export type DlList = Download[];
+export type DownloadQueue = DownloadItem[];
 
-export type DownloadItem = {
-    dl: Download;
-    index: number;
-    maxNum: number;
-}
 
 export type DlInfo = {
     targetFileName: string,

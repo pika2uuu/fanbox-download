@@ -5,8 +5,8 @@ import { sendMessage } from '../utils/messaging'
 export async function download() {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
     // let ignoreFreePlan = true;
-    const dlList: DlList = [];
     const url = ""
+    const dlQueue: DownloadQueue = [];
     // const url = ""
     // const url = ""
     // const url = ""
@@ -28,20 +28,20 @@ export async function download() {
             console.warn(`支援金額が足りないためコンテンツを取得できませんでした。title:『${post.title}』`)
             continue;
         }
-        addPostToDownloadList(dlList, post)
+        addPostToDownloadList(dlQueue, post)
     }
     const profileJson = await fetchData(profileAPIUrl)
     const profile = extractProfileData(profileJson);
-    addProfileToDownloadList(dlList, profile);
+    addProfileToDownloadList(dlQueue, profile);
 
     const plansJson = await fetchData(plansAPIUrl);
     const plans = extractPlansData(plansJson['body']);
-    addPlansToDownloadList(dlList, plans);
+    addPlansToDownloadList(dlQueue, plans);
 
 
     console.log("========");
-    console.log(dlList);
-    const res = await sendMessage('clickStart', dlList).catch(console.error);
+    console.log(dlQueue);
+    const res = await sendMessage('clickStart', dlQueue).catch(console.error);
     console.log(res);
     console.log("========")
 }
@@ -71,36 +71,36 @@ async function fetchData(url: string) {
     }
 }
 
-function addPlansToDownloadList(dlList: DlList, plans: Plan[]) {
+function addPlansToDownloadList(dlQueue: DownloadQueue, plans: Plan[]) {
     const dirname = "plans"
     // プランの内容のテキストを追加
     for (const plan of plans) {
         const filename = `${plan.title}.txt`
         const text = `${plan.title}\n${plan.description}\n￥${plan.fee}`
-        dlList.push({ dirname, filename, text })
+        dlQueue.push({ dirname, filename, text })
     }
     // プランの画像を追加
     for (const plan of plans) {
         const filename = `${plan.title}.jpeg`;
-        dlList.push({ dirname, filename, url: plan.coverImageUrl})
+        dlQueue.push({ dirname, filename, url: plan.coverImageUrl})
     }
 }
 
 // profileItem の要素のtypeがimage以外にあるか調査
-function addProfileToDownloadList(dlList: DlList, profile: Profile) {
+function addProfileToDownloadList(dlQueue: DownloadQueue, profile: Profile) {
     const dirname = "profile";
     // ヘッダー画像が設定されているときだけ
     if (profile.coverImageUrl) {
-        dlList.push({ dirname, filename: "header.jpeg", url: profile.coverImageUrl });
+        dlQueue.push({ dirname, filename: "header.jpeg", url: profile.coverImageUrl });
     }
     // アイコンが設定されてない場合だけ保存
     if (profile.user.iconUrl) {
-        dlList.push({ dirname, filename: "icon.jpeg", url: profile.user.iconUrl });
+        dlQueue.push({ dirname, filename: "icon.jpeg", url: profile.user.iconUrl });
     }
     // ポートフォリオ画像の場合はリンク保存する。
     for (const [i, item] of profile.profileItems.entries() ) {
         if (isImageProfileItem(item)) {
-            dlList.push({ dirname, filename: `portfolio${i}.jpeg`, url: item.imageUrl })
+            dlQueue.push({ dirname, filename: `portfolio${i}.jpeg`, url: item.imageUrl })
         }
     }
     // ポートフォリオ動画URLと自己紹介文テキストファイルにまとめてダウンロードする
@@ -110,7 +110,7 @@ function addProfileToDownloadList(dlList: DlList, profile: Profile) {
             videoUrls.push(formatVideoUrl(item.serviceProvider, item.videoId));
         }
     }
-    dlList.push({ dirname, filename: "profile.txt", text: formatProfileText(profile, videoUrls) });
+    dlQueue.push({ dirname, filename: "profile.txt", text: formatProfileText(profile, videoUrls) });
 }
 
 function formatVideoUrl (site: string, videoId: string) {
@@ -142,14 +142,14 @@ function formatProfileText(profile: Profile, videoUrls: string[]): string {
 }
 
 // 投稿の添付ファイルと本文をダウンロードするリストに追加。投稿のタイプは5種類あり、それぞれjsonが違うので場合わけ
-function addPostToDownloadList(dlList: DlList, post: Post) {
+function addPostToDownloadList(dlQueue: DownloadQueue, post: Post) {
     const dirname = `${toTimestamp(post.publishedDatetime)}${post.title.trim()}`;
     const type = post.type;
     const body = post.body;
 
     // 投稿のヘッダー画像があれば保存
     if (post.coverImageUrl) {
-        dlList.push({ dirname, filename: "cover.jpeg", url: post.coverImageUrl });
+        dlQueue.push({ dirname, filename: "cover.jpeg", url: post.coverImageUrl });
     }
 
     const filename = "post.txt"
@@ -160,42 +160,42 @@ function addPostToDownloadList(dlList: DlList, post: Post) {
     if (isTextBody(type, body)) { // ユーザー型定義ガード
         // テキスト投稿
         text += body.text;
-        dlList.push({ dirname, filename, text })
+        dlQueue.push({ dirname, filename, text })
     } else if (isVideoBody(type, body)) {
         // ビデオ・音楽投稿
         text += formatVideoData(body);
-        dlList.push({ dirname, filename, text})
+        dlQueue.push({ dirname, filename, text})
     } else if (isImageBody(type, body)) {
         // 画像投稿
         // └--画像一覧
         body.images.forEach(image => {
-            dlList.push({ dirname, filename: `image.${image.extension}`, url: image.originalUrl });
+            dlQueue.push({ dirname, filename: `image.${image.extension}`, url: image.originalUrl });
         });
         // └--投稿本文
         text += body.text;
-        dlList.push({ dirname, filename, text});
+        dlQueue.push({ dirname, filename, text});
     } else if (isFileBody(type, body)) {
         // ファイル投稿
         // └--ファイル一覧
         body.files.forEach((file) => {
-            dlList.push({ dirname, filename: `${file.name}.${file.extension}`, url: file.url });
+            dlQueue.push({ dirname, filename: `${file.name}.${file.extension}`, url: file.url });
         });
         // └--投稿本文
         text += body.text
-        dlList.push({ dirname, filename, text });
+        dlQueue.push({ dirname, filename, text });
     } else if (isArticleBody(type, body)) {
         // ブログ投稿
         // └--画像一覧
         Object.values(body.imageMap).forEach(image => {
-            dlList.push({ dirname, filename: `image.${image.extension}`, url: image.originalUrl });
+            dlQueue.push({ dirname, filename: `image.${image.extension}`, url: image.originalUrl });
         });
         // └--ファイル一覧
         Object.values(body.fileMap).forEach(file => {
-            dlList.push({ dirname, filename: `${file.name}.${file.extension}`, url: file.url });
+            dlQueue.push({ dirname, filename: `${file.name}.${file.extension}`, url: file.url });
         });
         // └--投稿本文
         text += formatArticleText(body)
-        dlList.push({ dirname, filename, text });
+        dlQueue.push({ dirname, filename, text });
     }
 }
 
