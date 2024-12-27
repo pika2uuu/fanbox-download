@@ -1,5 +1,5 @@
 export type DownloadItem = {
-    fullPath: string;
+    targetFilename: string;
     url?: string;
     text?: string;
 }
