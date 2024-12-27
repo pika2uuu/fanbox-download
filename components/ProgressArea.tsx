@@ -14,7 +14,6 @@ type Progress = {
 }
 
 export default function ProgressArea() {
-    const [downloads, setDownloads] = useState<DownloadJob[]>([]);
     const [allDownloads, setAllDownloads] = useState<AllDownloads>([]);
     const [finished, setFinished] = useState<boolean>(false);
     const [indexPair, setIndexPair] = useState<IndexPair>({index: 0, maxNum: 0})
@@ -41,10 +40,6 @@ export default function ProgressArea() {
         onMessage('downloadStarted', (msg) => {
             const { targetFilename, index, maxNum } = msg.data;
             setIndexPair({ index, maxNum: maxNum });
-            setDownloads((prev) => [
-                ...prev,
-                { targetFilename, index, maxNum },
-            ]);
         });
 
         // ダウンロード開始に成功した直後。
@@ -79,23 +74,14 @@ export default function ProgressArea() {
             </Progress.Root>
             {/*<ProgressStatus />*/}
             <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
-                {/*新しいのを上に表示したいので逆順にする。*/}
-                {downloads.slice().reverse().map((dlJob, i) => {
-                    const targetFilename = dlJob.targetFilename;
-                    if (finished) {
-                        return (
-                            <DownloadItem key={i} finished={true} targetFilename={targetFilename} />
-                        );
-                    } else if (i === 0) {
-                        // i が 0 の場合
-                        return (
-                            <DownloadItem key={i} finished={false} targetFilename={targetFilename}  />
-                        );
-                    } else {
-                        // その他の条件
-                        return (
-                            <DownloadItem key={i} finished={true} targetFilename={targetFilename}  />
-                        );
+                {Object.entries(allDownloads).map(([id, dl]) => {
+                    const {targetFilename, state} = dl;
+
+                    console.log(targetFilename, state)
+                    if (state == "in_progress") {
+                        return <DownloadItem key={id} finished={false} targetFilename={targetFilename}  />
+                    }else {
+                        return <DownloadItem key={id} finished={true} targetFilename={targetFilename}  />
                     }
                 })}
             </ScrollArea>
