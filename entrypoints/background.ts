@@ -14,7 +14,7 @@ export default defineBackground( async () => {
 
             if (id !== -1) {
                 // ダウンロード対象のファイルを保存しているRecordを保存するメッセージ
-                await sendMessage("downloadStatusStarted", {id, targetFilename, status: "in_progress"}, tab.id);
+                await sendMessage("downloadStatusStarted", {id, targetFilename, state: "in_progress"}, tab.id);
                 // TODO 
                 // いらないかも。downloadQueueを廃止予定だから、ダウンロード数が全部で何個かは確定情報じゃなく変わっていくから。対象のファイルが全部の中から何個めかを保存するメッセージ。(4/60)みたいな表記のためのindexとmaxNum
                 await sendMessage('downloadStarted', {targetFilename, index, maxNum }, tab.id)
@@ -45,7 +45,7 @@ export default defineBackground( async () => {
 
         try {
             const downloadId = await downloadFile(downloadUrl, targetFilename);
-            allDownloads[downloadId] = { targetFilename, status: "in_progress" };
+            allDownloads[downloadId] = { targetFilename, state: "in_progress" };
             return downloadId;
         } catch (error) {
             console.error(`ダウンロードに失敗しました : ${error}`);
