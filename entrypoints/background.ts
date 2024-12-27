@@ -9,7 +9,7 @@ export default defineBackground( async () => {
 
         for (const [index, dl] of dlQueue.data.entries()) {
             const id = await downloadStart(dl);
-            const targetFilename =  dl.fullPath
+            const targetFilename =  dl.targetFilename
             console.log("ダウンロード開始")
 
             if (id !== -1) {
@@ -39,8 +39,7 @@ export default defineBackground( async () => {
     })
 
     async function downloadStart(dl: DownloadItem): Promise<number> {
-        const { fullPath, url, text } = dl;
-        const targetFilename = fullPath
+        const { targetFilename, url, text } = dl;
         const downloadUrl = url || await createBlobUrl(text!)
 
         try {
