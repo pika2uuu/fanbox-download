@@ -4,7 +4,8 @@ interface MessageProtocol {
   clickStart: (dlQueue: DownloadQueue) => string;
   downloadStarted: (dl: DownloadJob) => string;
   downloadFinished: (finished: boolean) => void;
-  downloadStatusUpdated: (dlStatus: DownloadStatus) => void;
+    downloadStatusStarted: (activeDownloads: DownloadStatus) => void;
+    downloadStatusUpdated: (dlStatus: DownloadStatus) => void;
   sleep: number;
 }
 

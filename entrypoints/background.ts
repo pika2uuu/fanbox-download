@@ -10,8 +10,10 @@ export default defineBackground( async () => {
             const downloadId = await downloadStart(dl);
             const targetFilename =  `${dl.dirname}/${dl.filename}`
             console.log("ダウンロード開始")
-            if (downloadId !== -1) {
-                await sendMessage('downloadStarted', {targetFilename, index, maxNum }, tab.id)
+            if (id !== -1) {
+                const targetFilename = `${dl.dirname}/${dl.filename}`
+                await sendMessage("downloadStatusStarted", {id, targetFilename, status: "in_progress"}, tab.id);
+                await sendMessage('downloadStarted', {targetFilename, id , index, maxNum }, tab.id)
             }
         }
         const finished = true
