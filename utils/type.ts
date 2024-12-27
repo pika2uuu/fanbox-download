@@ -15,7 +15,7 @@ export type DownloadJob = {
 
 export type DownloadStatus = {
     id: number,
-    targetFilename: string,
+    targetFilename?: string,
     status: string,
 }
 
