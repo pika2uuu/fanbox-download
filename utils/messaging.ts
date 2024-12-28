@@ -3,7 +3,6 @@ import {DownloadStatusForUpdate, DownloadStatusForStart, DownloadItem} from "@/u
 
 interface MessageProtocol {
   pushDownloadQueue: (dlItem: DownloadItem) => void;
-  downloadStarted: (dl: DownloadJob) => string;
   downloadFinished: (finished: boolean) => void;
     downloadStatusStarted: (activeDownloads: DownloadStatusForStart) => void;
     downloadStatusUpdated: (dlStatus: DownloadStatusForUpdate) => void;
