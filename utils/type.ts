@@ -4,12 +4,6 @@ export type DownloadItem = {
     text?: string;
 }
 
-export type DownloadJob = {
-    targetFilename: string,
-    index: number,
-    maxNum: number,
-}
-
 export type DownloadStatusForStart = {
     id: number,
     targetFilename: string,
