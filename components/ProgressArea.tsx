@@ -1,7 +1,7 @@
 import {ScrollArea} from "@mantine/core";
 import {onMessage} from "@/utils/messaging";
 import {useEffect} from "react";
-import DownloadItem from "./DownloadItem";
+import { InterruptedDownload, InProcessDownload, CompletedDownload } from "./DownloadItem";
 
 export default function ProgressArea() {
     const [finished, setFinished] = useState<boolean>(false);
