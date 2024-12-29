@@ -9,7 +9,7 @@ export default defineBackground( async () => {
         console.log(dl)
         console.log("ダウンロードキューに追加", targetFilename)
         if (id !== -1) {
-            await sendMessage("downloadStatusStarted", { id, targetFilename, state: "in_progress" }, activeTab.id);
+            await sendMessage("downloadStatusStarted", { id, targetFilename }, activeTab.id);
         }
     });
 

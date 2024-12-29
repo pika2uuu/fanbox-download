@@ -9,8 +9,8 @@ export default function ProgressArea() {
 
     useEffect(() => {
         onMessage("downloadStatusStarted", (msg) => {
-            const { id, targetFilename, state } = msg.data;
-            setAllDownloads((prev) => [...prev, { id, targetFilename, state }]); // stateをDownloadStateにキャスト
+            const { id, targetFilename } = msg.data;
+            setAllDownloads((prev) => [...prev, { id, targetFilename, state: "in_process" }]);
         });
 
         onMessage("downloadStatusUpdated", (msg) => {
