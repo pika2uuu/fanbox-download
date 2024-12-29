@@ -6,7 +6,6 @@ export default defineBackground( async () => {
         const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         const id = await downloadStart(dl.data);
         const targetFilename = dl.data.targetFilename
-        console.log(dl)
         console.log("ダウンロードキューに追加", targetFilename)
         if (id !== -1) {
             await sendMessage("downloadStatusStarted", { id, targetFilename }, activeTab.id);
@@ -15,9 +14,6 @@ export default defineBackground( async () => {
 
     chrome.downloads.onChanged.addListener(async (delta) => {
         const { id, state } = delta;
-        // chrome.downloadsはbackgroundでしか使えないのでactiveTabのIDを取得する必要がある。
-        const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-
         // downloadDeltaは複数種類の変更が含まれてて、今回はstateが含まれているものだけを抽出
         if (state !== undefined && state.current !== undefined) {
             // BackGround-> Content のメッセージを送るにはtabのid が必要。
@@ -40,7 +36,7 @@ export default defineBackground( async () => {
     }
 
     async function downloadFile(url: string, filePath: string): Promise<number> {
-        return chrome.downloads.download({
+        return browser.downloads.download({
             url: url,
             filename: filePath,
             conflictAction: 'uniquify',
