@@ -1,7 +1,6 @@
 import {onMessage, sendMessage} from '../utils/messaging';
 
 export default defineBackground( async () => {
-    const allDownloads: AllDownloads = {};
 
     onMessage('pushDownloadQueue', async (dl) =>  {
         const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });

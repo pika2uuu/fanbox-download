@@ -4,48 +4,28 @@ import {useEffect} from "react";
 import DownloadItem from "./DownloadItem";
 
 export default function ProgressArea() {
-    const [allDownloads, setAllDownloads] = useState<AllDownloads>([]);
     const [finished, setFinished] = useState<boolean>(false);
+    const [allDownloads, setAllDownloads] = useState<DownloadItem[]>([]);
 
     useEffect(() => {
-        // ダウンロード開始に成功した直後。
         onMessage("downloadStatusStarted", (msg) => {
-            const { id, targetFilename, state} = msg.data;
-            setAllDownloads((prev) => ({
-                ...prev,
-                [id]: { targetFilename, state },
-            }));
-        })
+            const { id, targetFilename, state } = msg.data;
+            setAllDownloads((prev) => [...prev, { id, targetFilename, state }]); // stateをDownloadStateにキャスト
+        });
 
-        // ダウンロード進行状況が更新された直後。
         onMessage("downloadStatusUpdated", (msg) => {
             const { id, state } = msg.data;
-            setAllDownloads((prev) => ({
-                ...prev,
-                [id]: { ...prev[id], state },
-            }));
-        })
+            setAllDownloads((prev) =>
+                prev.map((item) =>
+                    item.id === id ? { ...item, state } : item
+                )
+            );
+        });
 
-        onMessage('downloadFinished', (msg) => {
-            console.log('ダウンロードが終わり');
+        onMessage("downloadFinished", () => {
             setFinished((prev) => !prev)
-        })
+        });
     }, []);
-    return (
-        <>
-            {/*<ProgressStatus />*/}
-            <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
-                {Object.entries(allDownloads).reverse().map(([id, dl]) => {
-                    const {targetFilename, state} = dl;
 
-                    if (state == "in_progress") {
-                        return <DownloadItem key={id} finished={false} targetFilename={targetFilename}  />
-                    }else {
-                        return <DownloadItem key={id} finished={true} targetFilename={targetFilename}  />
-                    }
-                })}
-            </ScrollArea>
-        </>
-    )
 }
 

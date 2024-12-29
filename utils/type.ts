@@ -15,13 +15,6 @@ export type DownloadStatusForUpdate = {
     state: string,
 }
 
-export type AllDownload = {
-    targetFilename: string;
-    state: string;
-};
-
-export type AllDownloads = Record<number, AllDownload>;
-
 export type User = {
     userId: string;
     name: string;
