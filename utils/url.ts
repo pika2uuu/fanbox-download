@@ -29,3 +29,28 @@ export function generateUserUrls (url: string): { profileAPIUrl: string, allPage
         shopAPIUrl: `${pixivBaseUrl}/pixiv/shops/show.json?pixiv_user_id=${userID}`,
     }
 }
+
+// APIをフェッチしてJSONを返す
+export async function fetchJson(url: string) {
+    try {
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                'Host': 'api.fanbox.cc',
+                'Origin': 'https://www.fanbox.cc',
+                'Content-Type': 'application/json',
+            },
+            mode: 'cors',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to fetch. Status: ${response.status}`);
+            return;
+        }
+        return await response.json(); // JSONの場合
+    } catch (error) {
+        console.error("Error during fetch:", error);
+        throw error;
+    }
+}
