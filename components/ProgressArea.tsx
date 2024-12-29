@@ -45,26 +45,19 @@ export default function ProgressArea() {
 
     return (
         <>
-        <Text size="xl" c="green">{fileCount}個</Text>
-        <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
-            <Flex direction="column" gap="sm">
-                {allDownloads.length === 0 ? (
-                    <Text  mt="md" c="dimmed">ダウンロードを開始します</Text>
-                ) : (
-                    <>
-                        {interruptedDownloads.map(dl => (
-                            <InterruptedDownload key={dl.id} targetFilename={dl.targetFilename} />
-                        ))}
-                        {inProcessDownloads.map(dl => (
-                            <InProcessDownload key={dl.id} targetFilename={dl.targetFilename} />
-                        ))}
-                        {completeDownloads.map(dl => (
-                            <CompletedDownload key={dl.id} targetFilename={dl.targetFilename} />
-                        ))}
-                    </>
-                )}
-            </Flex>
-        </ScrollArea>
+            <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
+                <List>
+                    { interruptedDownloads.length > 0 && interruptedDownloads.map(dl => (
+                        <InterruptedDownload key={dl.id} targetFilename={dl.targetFilename} />
+                    ))}
+                    { inProcessDownloads.length > 0 && inProcessDownloads.map(dl => (
+                        <InProcessDownload key={dl.id} targetFilename={dl.targetFilename} />
+                    ))}
+                    {completeDownloads.map(dl => (
+                        <CompletedDownload key={dl.id} targetFilename={dl.targetFilename} />
+                    ))}
+                </List>
+            </ScrollArea>
         </>
     );
 }
