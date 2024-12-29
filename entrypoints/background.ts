@@ -31,9 +31,8 @@ export default defineBackground( async () => {
         const downloadUrl = url || await createBlobUrl(text!)
 
         try {
-            const downloadId = await downloadFile(downloadUrl, targetFilename);
-            allDownloads[downloadId] = { targetFilename, state: "in_progress" };
-            return downloadId;
+            // browser.downloads.download の返り値はそのファイルのダウンロード状況に紐づく一意のID
+            return await downloadFile(downloadUrl, targetFilename);
         } catch (error) {
             console.error(`ダウンロードに失敗しました : ${error}`);
             return -1;
