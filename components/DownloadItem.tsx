@@ -1,29 +1,27 @@
-import { Text, Flex } from "@mantine/core";
-import { IconCircleCheck, IconLoader } from "@tabler/icons-react";
+import { Flex, Text } from "@mantine/core";
+import { IconCircleCheck, IconLoader, IconX } from "@tabler/icons-react";
 
 type DownloadItemProps = {
-    finished: boolean;
     targetFilename: string;
 };
 
-export default function DownloadItem({ finished, targetFilename}: DownloadItemProps) {
-    return (
-        <Flex align="center">
-            {finished ? (
-                <>
-                    <Text style={{ verticalAlign: "bottom" }}>
-                        <IconCircleCheck stroke={2} size="1em" color="green" />
-                    </Text>
-                    <Text c="green">{targetFilename}</Text>
-                </>
-            ) : (
-                <>
-                    <Text style={{ verticalAlign: "bottom" }}>
-                        <IconLoader className="loading" size="1em" />
-                    </Text>
-                    <Text>{targetFilename}</Text>
-                </>
-            )}
-        </Flex>
-    );
-}
+export const InterruptedDownload = ({ targetFilename }: DownloadItemProps) => (
+    <Flex align="center" gap="sm">
+        <IconX stroke={2} size="1em" color="red" />
+        <Text>{targetFilename}</Text>
+    </Flex>
+);
+
+export const InProcessDownload = ({ targetFilename }: DownloadItemProps) => (
+    <Flex align="center" gap="sm">
+        <IconLoader className="loading" size="1em" />
+        <Text>{targetFilename}</Text>
+    </Flex>
+);
+
+export const CompletedDownload = ({ targetFilename }: DownloadItemProps) => (
+    <Flex align="center" gap="sm">
+        <IconCircleCheck stroke={2} size="1em" color="green" />
+        <Text c="green">{targetFilename}</Text>
+    </Flex>
+);
