@@ -1,6 +1,7 @@
 // import {logger} from "@/utils/logger.ts";
 import {Profile, Plan, Post, ArticleBody, ImageBody, VideoBody, ImageProfileItem, VideoProfileItem} from "@/utils/type.ts";
 import { sendMessage } from '../utils/messaging'
+import { generateUserUrls } from "@/utils/url.ts";
 
 export async function download() {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
@@ -298,38 +299,6 @@ async function generateAllPostUrls(apiUrl: string) {
         postUrls.push(...generatePostUrls(ids))
     }
     return postUrls;
-}
-
-// urlからuserIDを抽出
-function getUserID(url: string): string {
-    const parsedUrl = new URL(url);
-    const paths = parsedUrl.pathname.split("/");
-    const atPath = paths.find(path => path.startsWith("@"));
-
-    // URLに含まれるユーザーIDは2パターン
-    let userID;
-    if (atPath != undefined) {
-        // fanbox.cc/@XXX
-        userID = atPath.replace('@', "") // 下のパターンに合わせて@を削除
-    } else {
-        // XXX.fanbox.cc
-        userID = parsedUrl.host.split(".")[0];
-    }
-    return userID;
-}
-
-// UserIDから、プロフィール、投稿一覧のページネーション、プラン一覧、物販一覧のAPIを作成
-function generateUserUrls (url: string): { profileAPIUrl: string, allPagesAPIUrl: string, plansAPIUrl: string, shopAPIUrl: string} {
-    const userID = getUserID(url);
-    const fanboxBaseUrl = "https://api.fanbox.cc";
-    const pixivBaseUrl = "https://api.booth.pm";
-
-    return {
-        profileAPIUrl: `${fanboxBaseUrl}/creator.get?creatorId=${userID}`,
-        allPagesAPIUrl: `${fanboxBaseUrl}/post.paginateCreator?creatorId=${userID}`,
-        plansAPIUrl: `${fanboxBaseUrl}/plan.listCreator?creatorId=${userID}`,
-        shopAPIUrl: `${pixivBaseUrl}/pixiv/shops/show.json?pixiv_user_id=${userID}`,
-    }
 }
 
 function generatePostUrls(ids: string[]): string[] {
