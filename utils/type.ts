@@ -21,14 +21,6 @@ export type User = {
     iconUrl: string;
 };
 
-export type ProfileItem = {
-    id: string;
-    type: string;
-    imageUrl?: string;
-    serviceProvider?: string;
-    videoId?: string;
-}
-
 export type ImageProfileItem = {
     id: string;
     type: string;
@@ -58,10 +50,6 @@ export type Plan = {
     description: string;
     coverImageUrl: string;
 };
-
-export type PageUrl = {
-    url: string;
-}
 
 type Image = {
     id: string;
