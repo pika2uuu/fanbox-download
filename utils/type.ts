@@ -7,7 +7,6 @@ export type DownloadItem = {
 export type DownloadStatusForStart = {
     id: number,
     targetFilename: string,
-    state: string,
 }
 
 export type DownloadStatusForUpdate = {

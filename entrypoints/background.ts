@@ -18,11 +18,11 @@ export default defineBackground( async () => {
         // chrome.downloadsはbackgroundでしか使えないのでactiveTabのIDを取得する必要がある。
         const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
-        if (allDownloads[id]) {
-            // downloadDeltaのうち、stateが含まれているものだけを対象。complete か interrupted
-            if (state !== undefined && state.current !== undefined) {
-                await sendMessage("downloadStatusUpdated", { id, state: state.current }, activeTab.id);
-            }
+        // downloadDeltaは複数種類の変更が含まれてて、今回はstateが含まれているものだけを抽出
+        if (state !== undefined && state.current !== undefined) {
+            // BackGround-> Content のメッセージを送るにはtabのid が必要。
+            const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+            await sendMessage("downloadStatusUpdated", { id, state: state.current }, activeTab.id);
         }
     })
 
