@@ -1,7 +1,7 @@
 // import {logger} from "@/utils/logger.ts";
 import {Profile, Plan, Post, ArticleBody, ImageBody, VideoBody, ImageProfileItem, VideoProfileItem} from "@/utils/type.ts";
 import { sendMessage } from '../utils/messaging'
-import { generateUserUrls } from "@/utils/url.ts";
+import { generateUserUrls, fetchJson } from "@/utils/url.ts";
 
 export async function download() {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
@@ -21,7 +21,7 @@ export async function download() {
 
     // 現在は支援金額をみたしている投稿だけ表示している。
     for (const postUrl of postUrls) {
-        const postJson = await fetchData(postUrl);
+        const postJson = await fetchJson(postUrl);
         const post = extractPostData(postJson); // fetchでJSON取得直後に不要なキーを削除したPost型に変換
         // 支援金額た足りない場合、 isRestricted が true
         if (post.isRestricted) {
@@ -30,38 +30,13 @@ export async function download() {
         }
         await pushPostToDownloadQueue(post)
     }
-    const profileJson = await fetchData(profileAPIUrl)
+    const profileJson = await fetchJson(profileAPIUrl)
     const profile = extractProfileData(profileJson);
     await pushProfileToDownloadQueue(profile);
 
-    const plansJson = await fetchData(plansAPIUrl);
+    const plansJson = await fetchJson(plansAPIUrl);
     const plans = extractPlansData(plansJson['body']);
     await pushPlansToDownloadQueue(plans);
-}
-
-
-async function fetchData(url: string) {
-    try {
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                'Host': 'api.fanbox.cc',
-                'Origin': 'https://www.fanbox.cc',
-                'Content-Type': 'application/json',
-            },
-            mode: 'cors',
-            credentials: 'include',
-        });
-
-        if (!response.ok) {
-            console.error(`Failed to fetch. Status: ${response.status}`);
-            return;
-        }
-        return await response.json(); // JSONの場合
-    } catch (error) {
-        console.error("Error during fetch:", error);
-        throw error;
-    }
 }
 
 async function pushPlansToDownloadQueue(plans: Plan[]) {
@@ -193,8 +168,6 @@ async function pushPostToDownloadQueue( post: Post) {
     }
 }
 
-
-
 function toTimestamp(dateString: string): string {
     const date = new Date(dateString);
     const y = date.getFullYear();
@@ -288,13 +261,13 @@ function formatVideoData(body: VideoBody): string {
 }
 
 async function generateAllPostUrls(apiUrl: string) {
-    const allPageUrlsJson = await fetchData(apiUrl);
+    const allPageUrlsJson = await fetchJson(apiUrl);
     const allPageUrls = extractAllPageUrls(allPageUrlsJson)
 
     // ページネーション情報から各投稿のURLを取得する
     let postUrls = [];
     for (const pageUrl of allPageUrls) {
-        const posts = await fetchData(pageUrl);
+        const posts = await fetchJson(pageUrl);
         const ids = extractPostId(posts)
         postUrls.push(...generatePostUrls(ids))
     }
