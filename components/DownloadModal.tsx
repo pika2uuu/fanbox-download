@@ -1,5 +1,4 @@
 import { Modal, Stack, Button, ScrollArea, Progress } from "@mantine/core";
-import DownloadItem from "@/components/DownloadItem.tsx";
 import ProgressArea from "@/components/ProgressArea.tsx";
 import {download} from "@/utils/download.ts";
 
