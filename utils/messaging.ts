@@ -6,6 +6,7 @@ interface MessageProtocol {
   downloadFinished: (finished: boolean) => void;
     downloadStatusStarted: (activeDownloads: DownloadStatusForStart) => void;
     downloadStatusUpdated: (dlStatus: DownloadStatusForUpdate) => void;
+    changedUrl: (url: string) => void;
   sleep: number;
 }
 

@@ -12,6 +12,18 @@ export default defineBackground( async () => {
         }
     });
 
+    // ページ移動したときURLを送信する
+    browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        console.log(changeInfo)
+        // ページ移動に完成したら {status: 'complete'} が発生する。そのときのtabのurlを送信する
+        // if (changeInfo.status === "complete" && tab.url) {
+        console.log(tab)
+        console.log(tabId)
+        if (changeInfo.url && tab.url) {
+            sendMessage("changedUrl", tab.url, tabId);
+        }
+    })
+
     chrome.downloads.onChanged.addListener(async (delta) => {
         const { id, state } = delta;
         // downloadDeltaは複数種類の変更が含まれてて、今回はstateが含まれているものだけを抽出
