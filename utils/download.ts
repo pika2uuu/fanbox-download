@@ -208,7 +208,7 @@ function extractAllPageUrls(json: { body: string[] }): string[] {
     return json.body;
 }
 
-function extractProfileData(json: any): Profile {
+export function extractProfileData(json: any): Profile {
     return {
         user: json.body.user,
         creatorId: json.body.creatorId,
