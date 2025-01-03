@@ -60,18 +60,9 @@ export default function DownloadModal({ opened, close }: Props) {
                     </Center>
                 )}
 
-                { !isDownloading && isClicked && (
-                    <Center>
-                        <Stack>
-                            <Text c="green" size="lg" >ダウンロード完了</Text>
-                            <Button onClick={close}>閉じる</Button>
-                        </Stack>
-                    </Center>
-            )}
-
                 { isClicked ? (
                     <>
-                        <ProgressArea />
+                        <ProgressArea close={close} isDownloading={isDownloading} isClicked={isClicked}  />
                     </>
                 ) : (
                     <>
