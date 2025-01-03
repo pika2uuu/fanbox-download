@@ -3,7 +3,7 @@ import {Profile, Plan, Post, ArticleBody, ImageBody, VideoBody, ImageProfileItem
 import { sendMessage } from '../utils/messaging'
 import { generateUserUrls, fetchJson } from "@/utils/url.ts";
 
-export async function download() {
+export async function download(): Promise<boolean> {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
     // let ignoreFreePlan = true;
     const url = ""
@@ -16,7 +16,7 @@ export async function download() {
 
     if (postUrls.length == 0) {
         console.warn("投稿されている記事が１つもないので終了します")
-        return;
+        return false;
     }
 
     // 現在は支援金額をみたしている投稿だけ表示している。
@@ -37,6 +37,8 @@ export async function download() {
     const plansJson = await fetchJson(plansAPIUrl);
     const plans = extractPlansData(plansJson['body']);
     await pushPlansToDownloadQueue(plans);
+
+    return false;
 }
 
 async function pushPlansToDownloadQueue(plans: Plan[]) {
