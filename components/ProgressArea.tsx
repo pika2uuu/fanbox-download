@@ -1,6 +1,7 @@
 import {onMessage} from "@/utils/messaging";
-import { ScrollArea, Flex, Text } from "@mantine/core";
+import {ScrollArea, Flex, Text, List, Image, Table, Grid, Avatar} from "@mantine/core";
 import { InterruptedDownload, InProcessDownload, CompletedDownload } from "./DownloadItem";
+import ProgressTable from "@/components/ProgressTable.tsx";
 
 type DownloadItem = {
     id: number;
@@ -8,19 +9,18 @@ type DownloadItem = {
     state: string;
 };
 
+
 export default function ProgressArea() {
     const [finished, setFinished] = useState<boolean>(false);
     const [allDownloads, setAllDownloads] = useState<DownloadItem[]>([]);
     const [interruptedDownloads, setInterruptedDownloads] = useState<DownloadItem[]>([]);
     const [inProcessDownloads, setInProcessDownloads] = useState<DownloadItem[]>([]);
     const [completeDownloads, setCompleteDownloads] = useState<DownloadItem[]>([]);
-    const [fileCount, setFileCount] = useState<number>(0);
 
     useEffect(() => {
         setInterruptedDownloads(allDownloads.filter(dl => dl.state === "interrupted"));
         setInProcessDownloads(allDownloads.filter(dl => dl.state === "in_process"));
         setCompleteDownloads(allDownloads.filter(dl => dl.state === "complete"));
-        setFileCount(allDownloads.length);
     }, [allDownloads]);
 
     useEffect(() => {
@@ -45,7 +45,12 @@ export default function ProgressArea() {
 
     return (
         <>
-            <ScrollArea h={250} type="always" offsetScrollbars scrollbarSize={14} scrollHideDelay={2000}>
+            <ProgressTable
+                inProcess={inProcessDownloads}
+                interrupted={interruptedDownloads}
+                complete={completeDownloads}
+            />
+            <ScrollArea h={350} type="always" offsetScrollbars scrollbarSize={14} scrollbars="y">
                 <List>
                     { interruptedDownloads.length > 0 && interruptedDownloads.map(dl => (
                         <InterruptedDownload key={dl.id} targetFilename={dl.targetFilename} />
