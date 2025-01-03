@@ -53,12 +53,21 @@ export default function DownloadModal({ opened, close }: Props) {
                 </Center>
 
                 { isDownloading && isClicked && (
-                    <Text>ダウンロード中</Text>
+                    <Center>
+                        <Stack>
+                            <Text>ダウンロード中</Text>
+                        </Stack>
+                    </Center>
                 )}
 
                 { !isDownloading && isClicked && (
-                    <Text>ダウンロード完了</Text>
-                )}
+                    <Center>
+                        <Stack>
+                            <Text c="green" size="lg" >ダウンロード完了</Text>
+                            <Button onClick={close}>閉じる</Button>
+                        </Stack>
+                    </Center>
+            )}
 
                 { isClicked ? (
                     <>
