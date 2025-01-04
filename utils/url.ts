@@ -16,6 +16,13 @@ export function getUserID(url: string): string {
     return userID;
 }
 
+// この処理が肝。普通のサイトでいうところの isLogin に匹敵する。よって毎回これで証券分岐することになるが、仕方がないこと。
+export function isCreatorPage(url: string): boolean {
+    const userID = getUserID(url);
+    // クリエイターページにいないと、www.fanbox.cc から始まるURLになるから、userIDは"www"になる
+    return userID !== "www";
+}
+
 // UserIDから、プロフィール、投稿一覧のページネーション、プラン一覧、物販一覧のAPIを作成
 export function generateUserUrls (url: string): { profileAPIUrl: string, allPagesAPIUrl: string, plansAPIUrl: string, shopAPIUrl: string} {
     const userID = getUserID(url);

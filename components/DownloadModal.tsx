@@ -1,7 +1,7 @@
 import {Center, Box, Modal, Stack, Button, ScrollArea, Progress, Text, Image, Grid, Avatar} from "@mantine/core";
 import ProgressArea from "@/components/ProgressArea.tsx";
 import {download} from "@/utils/download.ts";
-import {fetchJson, generateUserUrls} from "@/utils/url.ts";
+import {fetchJson, generateUserUrls, getUserID, isCreatorPage} from "@/utils/url.ts";
 import { User } from "../utils/type";
 
 type Props = {
@@ -28,22 +28,30 @@ export default function DownloadModal({ opened, close }: Props) {
         return  { userId: userJson.creatorId, name:userJson.user.name, iconUrl: userJson.user.iconUrl }
     }
 
+    // TODO 非クリエイターページならクリックできないようにして、クリエイターページに移動するよう促すツールチップを表示
     useEffect(() => {
         // 初回ロード時にユーザ情報更新
-        async function setCurrentUrl(url: string) {
-            console.log(url, "ユーザーを取得");
-            const user = await fetchUser(url);
-            setUser(user);
+        async function setCurrentUser(url: string) {
+            // クリエイターページのときだけユーザー情報を更新する
+            if (isCreatorPage(url)) {
+                const user = await fetchUser(url);
+                console.log(user);
+                setUser(user);
+            }
         }
-        setCurrentUrl(window.location.href);
+        setCurrentUser(window.location.href);
 
         // URL更新時にユーザ情報更新
         onMessage("changedUrl", async (msg) => {
-            const user =  await fetchUser(msg.data)
-            setUser(user);
+            // クリエイターページのときだけユーザー情報を更新する
+            if (isCreatorPage(msg.data)) {
+                const user =  await fetchUser(msg.data)
+                setUser(user);
+            }
         });
     }, []);
 
+    // TODO モーダルを閉じるときオーバーレイをクリックしたときもイベントリスナーを解除する必要がある
     return (
         <Modal opened={opened} onClose={close} withCloseButton={false} >
             <Stack h={480} bg="var(--mantine-color-body)" align="stretch" justify="flex-start" gap="md">
