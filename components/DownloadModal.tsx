@@ -3,6 +3,13 @@ import ProgressArea from "@/components/ProgressArea.tsx";
 import {download} from "@/utils/download.ts";
 import {fetchJson, generateUserUrls, getUserID, isCreatorPage} from "@/utils/url.ts";
 import { User } from "../utils/type";
+import {onMessage} from "@/utils/messaging.ts";
+
+type DownloadItem = {
+    id: number;
+    targetFilename: string;
+    state: string;
+};
 
 type Props = {
     opened: boolean;
@@ -19,6 +26,50 @@ export default function DownloadModal({ opened, close }: Props) {
         iconUrl: "https://example.com/default-icon.png",
     };
     const [user, setUser] = useState<User>(defaultUser);
+    const [allDownloads, setAllDownloads] = useState<DownloadItem[]>([]);
+    const [interruptedDownloads, setInterruptedDownloads] = useState<DownloadItem[]>([]);
+    const [inProcessDownloads, setInProcessDownloads] = useState<DownloadItem[]>([]);
+    const [completeDownloads, setCompleteDownloads] = useState<DownloadItem[]>([]);
+    const listenersRef = useRef<(() => void)[]>([]);
+    const [finished, setFinished] = useState<boolean>(false);
+
+    useEffect(() => {
+        setInterruptedDownloads(allDownloads.filter(dl => dl.state === "interrupted"));
+        setInProcessDownloads(allDownloads.filter(dl => dl.state === "in_process"));
+        setCompleteDownloads(allDownloads.filter(dl => dl.state === "complete"));
+    }, [allDownloads]);
+
+    useEffect(() => {
+        const removeDlStartedListener = onMessage("downloadStatusStarted", (msg) => {
+            const { id, targetFilename } = msg.data;
+            setAllDownloads((prev) => [...prev, { id, targetFilename, state: "in_process" }]);
+        });
+
+        const removeDlUpdatedListener =  onMessage("downloadStatusUpdated", (msg) => {
+            const { id, state } = msg.data;
+            setAllDownloads((prev) =>
+                prev.map((item) =>
+                    item.id === id ? { ...item, state } : item
+                )
+            );
+        });
+
+        const removeDlFinishedListener = onMessage("downloadFinished", () => {
+            setFinished((prev) => !prev)
+        });
+
+        listenersRef.current.push(removeDlStartedListener, removeDlUpdatedListener, removeDlFinishedListener);
+    }, []);
+
+    // TODO 別のクリエイターのページに移動したときもリスナーを解除しなきゃエラーになる。
+    const handleClosed = () => {
+        // 保存していたリスナーをすべて削除
+        listenersRef.current.forEach((removeListener) => removeListener());
+        listenersRef.current = [];
+
+        // モーダルを閉じる
+        close();
+    };
 
     // urlからユーザー情報のオブジェクトを作成
     async function fetchUser(url: string) : Promise<User>{
@@ -41,13 +92,25 @@ export default function DownloadModal({ opened, close }: Props) {
         }
         setCurrentUser(window.location.href);
 
+        setCurrentUrl(window.location.href);
+
         // URL更新時にユーザ情報更新
         onMessage("changedUrl", async (msg) => {
+            setCurrentUrl(msg.data);
             // クリエイターページのときだけユーザー情報を更新する
             if (isCreatorPage(msg.data)) {
                 const user =  await fetchUser(msg.data)
                 setUser(user);
             }
+            // URLを変えるたびにリスナーを解除しないと一度ダウンロードして、別のユーザーをダウンロードするとき、2回目のメッセージ受信が行われるのでエラーが出る
+            handleClosed();
+            setIsDownloading(false);
+            setIsClicked(false);
+            setAllDownloads([]);
+            setInterruptedDownloads([]);
+            setInProcessDownloads([]);
+            setCompleteDownloads([]);
+
         });
     }, []);
 
@@ -70,7 +133,7 @@ export default function DownloadModal({ opened, close }: Props) {
 
                 { isClicked ? (
                     <>
-                        <ProgressArea close={close} isDownloading={isDownloading} isClicked={isClicked}  />
+                        <ProgressArea  isDownloading={isDownloading} isClicked={isClicked} interrupted={interruptedDownloads} inProcess={inProcessDownloads} complete={completeDownloads} handleClosed={handleClosed} />
                     </>
                 ) : (
                     <>
@@ -79,7 +142,7 @@ export default function DownloadModal({ opened, close }: Props) {
                                 onClick={async () =>{
                                     setIsClicked(true);
                                     setIsDownloading(true)
-                                    const result = await download()
+                                    const result = await download(currentUrl);
                                     setIsDownloading(result);
                                 }}
                                 w = {200}

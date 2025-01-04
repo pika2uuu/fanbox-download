@@ -3,10 +3,10 @@ import {Profile, Plan, Post, ArticleBody, ImageBody, VideoBody, ImageProfileItem
 import { sendMessage } from '../utils/messaging'
 import { generateUserUrls, fetchJson } from "@/utils/url.ts";
 
-export async function download(): Promise<boolean> {
+export async function download(url: string): Promise<boolean> {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
     // let ignoreFreePlan = true;
-    const url = ""
+    // const url = ""
     // const url = ""
     // const url = ""
     // const url = ""
