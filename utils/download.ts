@@ -6,10 +6,6 @@ import { generateUserUrls, fetchJson } from "@/utils/url.ts";
 export async function download(url: string): Promise<boolean> {
     // let ignorePaywall = true; // 支援金額が足りないとき、タイトルなど一部のデータを取得するかを尋ねる
     // let ignoreFreePlan = true;
-    // const url = ""
-    // const url = ""
-    // const url = ""
-    // const url = ""
     const { profileAPIUrl, allPagesAPIUrl, plansAPIUrl, shopAPIUrl } = generateUserUrls(url);
 
     // 保存先のトップディレクトリ名をユーザーIDにする。pushXXX 関数内で個々に定義すればいいけど、プラン一覧のAPIにユーザー名がなかったから
